@@ -1,0 +1,10 @@
+[package]
+name = "launcher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crossterm = "0.28.1"
+rust-ini = "0.21"
+ratatui = "0.28.1"
+fork = "0.2.0"
