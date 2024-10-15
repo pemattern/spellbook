@@ -8,3 +8,5 @@ crossterm = "0.28.1"
 rust-ini = "0.21"
 ratatui = "0.28.1"
 fork = "0.2.0"
+serde = { version = "1.0.210", features = ["derive"] }
+toml = "0.8.19"
