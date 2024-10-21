@@ -1,5 +1,10 @@
 use crate::icons::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
 use ini::Ini;
+use ratatui::{
+    style::{Modifier, Style, Stylize},
+    text::{Line, Span},
+    widgets::ListItem,
+};
 use std::fs;
 
 #[derive(Clone, Debug)]
@@ -31,7 +36,9 @@ impl DesktopEntry {
             let terminal = match section.get("Terminal") {
                 Some("True") | Some("true") => true,
                 Some("False") | Some("false") => false,
-                Some(_) => false,
+                Some(_) => {
+                    return None;
+                }
                 None => {
                     return None;
                 }
@@ -58,6 +65,39 @@ impl DesktopEntry {
         None
     }
 
+    pub fn get_highlighted_name(&self, filter: String) -> Line {
+        let mut spans = Vec::new();
+        let name = &self.name;
+        let indices = name
+            .to_lowercase()
+            .match_indices(&filter.to_lowercase())
+            .map(|(index, _)| index)
+            .collect::<Vec<usize>>();
+        spans.push(Span::from(format!(" {} ", self.icon)));
+        if filter.len() == 0 || indices.len() == 0 {
+            spans.push(Span::raw(name));
+            return Line::from(spans);
+        }
+        if indices[0] > 0 {
+            spans.push(Span::raw(&name[..indices[0]]));
+        }
+        let mut iteration = 0;
+        for index in indices.iter() {
+            let start = *index;
+            let end = start + filter.len();
+            spans.push(Span::raw(&name[start..end]).bold().reversed());
+            let next_index: usize;
+            if iteration < indices.len() - 1 {
+                iteration += 1;
+                next_index = indices[iteration];
+            } else {
+                next_index = name.len();
+            }
+            spans.push(Span::raw(&name[end..next_index]));
+        }
+        Line::from(spans)
+    }
+
     fn get_icon(name: &str, categories: Vec<String>) -> String {
         let mut i = 0;
         while i < APPLICATION_ICON_MAP.len() {
@@ -75,6 +115,7 @@ impl DesktopEntry {
             }
             i += 1;
         }
-        "󰍹".to_string()
+        " ".to_string()
+        // "󰍹".to_string()
     }
 }

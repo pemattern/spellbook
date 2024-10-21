@@ -6,8 +6,6 @@ use config::Config;
 mod app;
 mod config;
 mod desktop_entry;
-mod entries_list;
-mod filter_input;
 mod icons;
 
 fn main() -> io::Result<()> {
