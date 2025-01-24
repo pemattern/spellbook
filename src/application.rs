@@ -4,18 +4,18 @@ use ratatui::{
     style::Stylize,
     text::{Line, Span},
 };
-use std::fs;
+use std::{env, fs, path::Path};
 
 #[derive(Clone, Debug)]
-pub struct DesktopEntry {
+pub struct Application {
     pub name: String,
     pub exec: String,
     pub terminal: bool,
     pub icon: String,
 }
 
-impl DesktopEntry {
-    pub fn from_file(path: &str) -> Option<DesktopEntry> {
+impl Application {
+    pub fn from_file(path: &str) -> Option<Self> {
         let content = match fs::read_to_string(path) {
             Ok(content) => content,
             Err(_) => return None,
@@ -62,6 +62,34 @@ impl DesktopEntry {
             });
         }
         None
+    }
+
+    pub fn find_all() -> Vec<Self> {
+        let mut applications = Vec::new();
+        let home = env::var("HOME").expect("unable to read $HOME env");
+        let dirs = vec![
+            "/usr/share/applications/".to_string(),
+            format!("{}/.local/share/applications/", home),
+        ];
+        for dir in dirs {
+            let path = Path::new(&dir);
+            if path.exists() && path.is_dir() {
+                for entry in fs::read_dir(path).expect("unable to read target directory") {
+                    let entry = entry.expect("unable to read entry");
+                    let path = entry.path();
+                    if path.is_file()
+                        && path.extension().and_then(|s| s.to_str()) == Some("desktop")
+                    {
+                        match Application::from_file(path.to_str().unwrap()) {
+                            Some(app) => applications.push(app),
+                            None => continue,
+                        }
+                    }
+                }
+            }
+        }
+        applications.sort_by(|a, b| a.name.cmp(&b.name));
+        applications
     }
 
     pub fn get_highlighted_name(&self, filter: &str) -> Line {
@@ -115,6 +143,5 @@ impl DesktopEntry {
             i += 1;
         }
         " ".to_string()
-        // "󰍹".to_string()
     }
 }
