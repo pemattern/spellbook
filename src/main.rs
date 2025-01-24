@@ -7,6 +7,7 @@ mod app;
 mod config;
 mod desktop_entry;
 mod icons;
+mod widgets;
 
 fn main() -> io::Result<()> {
     let toml = fs::read_to_string("./src/launcher.toml").unwrap();

@@ -14,20 +14,26 @@ use ratatui::{
     layout::{Constraint, Layout, Margin, Position, Rect},
     style::{Color, Style, Stylize},
     widgets::{
-        Block, List, ListDirection, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
-        ScrollbarState, StatefulWidget, Widget,
+        Block, List, ListDirection, ListState, Scrollbar, ScrollbarOrientation, ScrollbarState,
+        StatefulWidget, Widget,
     },
     DefaultTerminal, Frame,
 };
 
-use crate::{config::Config, desktop_entry::DesktopEntry};
+use crate::{
+    config::Config,
+    desktop_entry::DesktopEntry,
+    widgets::{
+        counter::Counter,
+        divider::Divider,
+        input::{Input, InputState},
+    },
+};
 
 #[derive(Debug)]
 pub struct App {
-    config: Config,
     entries: Vec<DesktopEntry>,
-    filter: String,
-    cursor_index: usize,
+    input_state: InputState,
     list_state: ListState,
     scrollbar_state: ScrollbarState,
     should_exit: bool,
@@ -37,10 +43,8 @@ impl App {
     pub fn new(config: Config) -> Self {
         let entries = Self::get_desktop_entries();
         Self {
-            config,
             entries,
-            filter: String::new(),
-            cursor_index: 0,
+            input_state: InputState::from_config(&config),
             list_state: ListState::default(),
             scrollbar_state: ScrollbarState::default(),
             should_exit: false,
@@ -50,9 +54,15 @@ impl App {
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
         while !self.should_exit {
             terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
+            self.handle_input()?;
         }
         Ok(())
+    }
+
+    fn draw(&mut self, frame: &mut Frame) {
+        let index = self.input_state.cursor_index as u16;
+        frame.render_widget(self, frame.area());
+        frame.set_cursor_position(Position::new(index + 2, 1));
     }
 
     fn select_entry(&mut self) {
@@ -103,87 +113,31 @@ impl App {
                 entry
                     .name
                     .to_lowercase()
-                    .contains(&self.filter.to_lowercase())
+                    .contains(&self.input_state.filter.to_lowercase())
             })
             .collect::<Vec<DesktopEntry>>();
         filtered_entries.sort_by(|a, b| a.name.cmp(&b.name));
         filtered_entries
     }
 
-    fn draw(&mut self, frame: &mut Frame) {
-        let index = self.cursor_index;
-        frame.render_widget(self, frame.area());
-        frame.set_cursor_position(Position::new(index as u16 + 2, 1));
-    }
-
-    fn handle_events(&mut self) -> io::Result<()> {
+    fn handle_input(&mut self) -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
                 match key.code {
-                    KeyCode::Char(to_insert) => self.enter_char(to_insert),
-                    KeyCode::Backspace => self.delete_char(),
-                    KeyCode::Delete => self.right_delete_char(),
-                    KeyCode::Left => self.move_cursor_left(),
-                    KeyCode::Right => self.move_cursor_right(),
-                    KeyCode::Up | KeyCode::BackTab => self.select_previous(),
-                    KeyCode::Down | KeyCode::Tab => self.select_next(),
+                    KeyCode::Char(to_insert) => self.input_state.enter_char(to_insert),
+                    KeyCode::Backspace => self.input_state.delete_char(),
+                    KeyCode::Delete => self.input_state.right_delete_char(),
+                    KeyCode::Left => self.input_state.move_cursor_left(),
+                    KeyCode::Right => self.input_state.move_cursor_right(),
                     KeyCode::Enter => self.select_entry(),
+                    KeyCode::Down | KeyCode::Tab => self.select_next(),
+                    KeyCode::Up | KeyCode::BackTab => self.select_previous(),
                     KeyCode::Esc => self.should_exit = true,
                     _ => {}
                 }
             }
         }
         Ok(())
-    }
-
-    fn move_cursor_left(&mut self) {
-        let cursor_moved_right = self.cursor_index.saturating_sub(1);
-        self.cursor_index = self.clamp_cursor(cursor_moved_right);
-    }
-
-    fn move_cursor_right(&mut self) {
-        let cursor_moved_left = self.cursor_index.saturating_add(1);
-        self.cursor_index = self.clamp_cursor(cursor_moved_left);
-    }
-
-    fn enter_char(&mut self, new_char: char) {
-        let index = self.byte_index();
-        self.filter.insert(index, new_char);
-        self.move_cursor_right();
-    }
-
-    fn byte_index(&self) -> usize {
-        self.filter
-            .char_indices()
-            .map(|(i, _)| i)
-            .nth(self.cursor_index)
-            .unwrap_or(self.filter.len())
-    }
-
-    fn delete_char(&mut self) {
-        let is_cursor_leftmost = self.cursor_index == 0;
-        if is_cursor_leftmost {
-            return;
-        }
-        let current_index = self.cursor_index;
-        let from_left_to_current_index = current_index - 1;
-        let before_char_to_delete = self.filter.chars().take(from_left_to_current_index);
-        let after_char_to_delete = self.filter.chars().skip(current_index);
-        self.filter = before_char_to_delete.chain(after_char_to_delete).collect();
-        self.move_cursor_left();
-    }
-
-    fn right_delete_char(&mut self) {
-        let is_cursor_rightmost = self.cursor_index == self.filter.len();
-        if is_cursor_rightmost {
-            return;
-        }
-        let cursor_index = self.cursor_index;
-        self.filter.remove(cursor_index);
-    }
-
-    fn clamp_cursor(&self, new_cursor_pos: usize) -> usize {
-        new_cursor_pos.clamp(0, self.filter.chars().count())
     }
 
     fn select_previous(&mut self) {
@@ -232,29 +186,21 @@ impl Widget for &mut App {
         ])
         .areas(area.inner(Margin::new(1, 1)));
         let filtered_entries = self.get_filtered_entries();
-        let count_display = format!("{}/{}", filtered_entries.len(), self.entries.len());
-        let [filter_area, count_area] = Layout::horizontal([
+        let counter = Counter::new(filtered_entries.len(), self.entries.len());
+        let [filter_area, _, counter_area] = Layout::horizontal([
             Constraint::Min(1),
-            Constraint::Length(count_display.len() as u16),
+            Constraint::Length(1),
+            Constraint::Length(counter.width()),
         ])
         .areas(top_area.inner(Margin::new(1, 0)));
         let [_, scrollbar_area] =
             Layout::horizontal([Constraint::Min(1), Constraint::Max(1)]).areas(list_area);
-        let input = match &self.config.placeholder {
-            Some(placeholder) => match &self.filter.len() {
-                0 => Paragraph::new(placeholder.as_str())
-                    .style(Style::new().fg(Color::DarkGray).italic()),
-                _ => Paragraph::new(self.filter.as_str()),
-            },
-            None => Paragraph::new(self.filter.as_str()),
-        };
-        let count = Paragraph::new(count_display).style(Style::new().fg(Color::White));
-        let divider = Paragraph::new((0..divider_area.width).map(|_| '—').collect::<String>());
+
+        let divider = Divider::new('─');
 
         let mut highlighted_and_filtered_entries = Vec::new();
-        let filtered_entries = self.get_filtered_entries();
         for entry in &filtered_entries {
-            let highlighted_name = entry.get_highlighted_name(self.filter.as_str());
+            let highlighted_name = entry.get_highlighted_name(self.input_state.filter.as_str());
             highlighted_and_filtered_entries.push(highlighted_name);
         }
 
@@ -271,7 +217,8 @@ impl Widget for &mut App {
             .begin_symbol(None)
             .end_symbol(None)
             .track_symbol(None)
-            .thumb_symbol("┃");
+            .thumb_symbol("┃")
+            .style(Style::new().fg(Color::White));
 
         let scrollable_range = (filtered_entries.len() as i16 - area.height as i16 + 3).max(0);
 
@@ -281,8 +228,8 @@ impl Widget for &mut App {
             .position(self.list_state.offset());
 
         Widget::render(main_block, area, buf);
-        Widget::render(input, filter_area, buf);
-        Widget::render(count, count_area, buf);
+        StatefulWidget::render(Input, filter_area, buf, &mut self.input_state);
+        Widget::render(counter, counter_area, buf);
         Widget::render(divider, divider_area, buf);
         StatefulWidget::render(list, list_area, buf, &mut self.list_state);
         StatefulWidget::render(scrollbar, scrollbar_area, buf, &mut self.scrollbar_state);
