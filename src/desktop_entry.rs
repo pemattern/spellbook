@@ -1,9 +1,8 @@
 use crate::icons::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
 use ini::Ini;
 use ratatui::{
-    style::{Modifier, Style, Stylize},
+    style::Stylize,
     text::{Line, Span},
-    widgets::ListItem,
 };
 use std::fs;
 
@@ -65,7 +64,7 @@ impl DesktopEntry {
         None
     }
 
-    pub fn get_highlighted_name(&self, filter: String) -> Line {
+    pub fn get_highlighted_name(&self, filter: &str) -> Line {
         let mut spans = Vec::new();
         let name = &self.name;
         let indices = name

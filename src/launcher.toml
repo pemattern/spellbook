@@ -1,2 +1,1 @@
-filter_label = "What we runnin'?"
-entries_label = 'Bloatware'
+placeholder = "type to filter applications"

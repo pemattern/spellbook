@@ -8,10 +8,10 @@ use std::{
 
 use fork::{fork, Fork};
 
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Layout, Position, Rect},
+    layout::{Constraint, Layout, Margin, Position, Rect},
     style::{Color, Style, Stylize},
     widgets::{
         Block, List, ListDirection, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
@@ -106,14 +106,14 @@ impl App {
                     .contains(&self.filter.to_lowercase())
             })
             .collect::<Vec<DesktopEntry>>();
-        filtered_entries.sort_by_key(|entry| entry.name.clone());
+        filtered_entries.sort_by(|a, b| a.name.cmp(&b.name));
         filtered_entries
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let index = self.cursor_index.clone();
+        let index = self.cursor_index;
         frame.render_widget(self, frame.area());
-        frame.set_cursor_position(Position::new(index as u16 + 1, 1));
+        frame.set_cursor_position(Position::new(index as u16 + 2, 1));
     }
 
     fn handle_events(&mut self) -> io::Result<()> {
@@ -224,29 +224,43 @@ impl App {
 
 impl Widget for &mut App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let [filter_area, list_area] =
-            Layout::vertical([Constraint::Length(3), Constraint::Min(1)]).areas(area);
-        let [_, scrollbar_area] = Layout::horizontal([Constraint::Min(1), Constraint::Max(1)])
-            .margin(1)
-            .areas(list_area);
-        let input = Paragraph::new(self.filter.clone()).block(Block::bordered().title("Filter"));
+        let main_block = Block::bordered();
+        let [top_area, divider_area, list_area] = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Min(1),
+        ])
+        .areas(area.inner(Margin::new(1, 1)));
+        let filtered_entries = self.get_filtered_entries();
+        let count_display = format!("{}/{}", filtered_entries.len(), self.entries.len());
+        let [filter_area, count_area] = Layout::horizontal([
+            Constraint::Min(1),
+            Constraint::Length(count_display.len() as u16),
+        ])
+        .areas(top_area.inner(Margin::new(1, 0)));
+        let [_, scrollbar_area] =
+            Layout::horizontal([Constraint::Min(1), Constraint::Max(1)]).areas(list_area);
+        let input = match &self.config.placeholder {
+            Some(placeholder) => match &self.filter.len() {
+                0 => Paragraph::new(placeholder.as_str())
+                    .style(Style::new().fg(Color::DarkGray).italic()),
+                _ => Paragraph::new(self.filter.as_str()),
+            },
+            None => Paragraph::new(self.filter.as_str()),
+        };
+        let count = Paragraph::new(count_display).style(Style::new().fg(Color::White));
+        let divider = Paragraph::new((0..divider_area.width).map(|_| '—').collect::<String>());
 
         let mut highlighted_and_filtered_entries = Vec::new();
         let filtered_entries = self.get_filtered_entries();
         for entry in &filtered_entries {
-            let highlighted_name = entry.get_highlighted_name(self.filter.clone());
+            let highlighted_name = entry.get_highlighted_name(self.filter.as_str());
             highlighted_and_filtered_entries.push(highlighted_name);
         }
 
         let list = List::new(highlighted_and_filtered_entries)
-            .block(Block::bordered().title("Apps"))
             .style(Style::new().fg(Color::White))
-            .highlight_style(
-                Style::new()
-                    .fg(Color::Black)
-                    .bg(Color::White)
-                    .not_reversed(),
-            )
+            .highlight_style(Style::new().fg(Color::Cyan).bg(Color::Black).not_reversed())
             .direction(ListDirection::TopToBottom);
 
         if let None = self.list_state.selected() {
@@ -266,7 +280,10 @@ impl Widget for &mut App {
             .content_length(scrollable_range as usize)
             .position(self.list_state.offset());
 
+        Widget::render(main_block, area, buf);
         Widget::render(input, filter_area, buf);
+        Widget::render(count, count_area, buf);
+        Widget::render(divider, divider_area, buf);
         StatefulWidget::render(list, list_area, buf, &mut self.list_state);
         StatefulWidget::render(scrollbar, scrollbar_area, buf, &mut self.scrollbar_state);
     }
