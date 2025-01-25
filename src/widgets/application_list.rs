@@ -31,11 +31,10 @@ impl StatefulWidget for ApplicationList {
             .highlight_style(Style::new().fg(Color::Cyan).bg(Color::Black).not_reversed())
             .direction(ListDirection::TopToBottom);
 
-        StatefulWidget::render(list, area, buf, &mut state.list_state);
-
-        if let None = state.selected() {
-            state.select_first();
+        if let None = state.list_state.selected() {
+            state.list_state.select_first();
         }
+        StatefulWidget::render(list, area, buf, &mut state.list_state);
 
         let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
             .begin_symbol(None)
@@ -93,7 +92,7 @@ impl ApplicationListState {
                     .contains(&self.filter.to_lowercase())
             })
             .collect::<Vec<Application>>();
-        filtered_applications.sort_by(|a, b| a.name.cmp(&b.name));
+        filtered_applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
         self.filtered_applications = filtered_applications;
     }
 
@@ -106,10 +105,6 @@ impl ApplicationListState {
             return None;
         };
         Some(&self.filtered_applications[i])
-    }
-
-    pub fn select_first(&mut self) {
-        self.list_state.select_first();
     }
 
     pub fn select_previous(&mut self) {

@@ -1,7 +1,7 @@
-use crate::icons::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
+use crate::icon::{Icon, APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
 use ini::Ini;
 use ratatui::{
-    style::Stylize,
+    style::{Color, Style, Stylize},
     text::{Line, Span},
 };
 use std::{env, fs, path::Path};
@@ -11,7 +11,7 @@ pub struct Application {
     pub name: String,
     pub exec: String,
     pub terminal: bool,
-    pub icon: String,
+    pub icon: Icon,
 }
 
 impl Application {
@@ -49,7 +49,7 @@ impl Application {
                     .collect::<Vec<String>>(),
                 None => Vec::new(),
             };
-            let icon = Self::get_icon(name, categories);
+            let icon = Self::get_icon(name, categories).clone();
             return Some(Self {
                 name: name.to_string(),
                 exec: exec
@@ -88,7 +88,7 @@ impl Application {
                 }
             }
         }
-        applications.sort_by(|a, b| a.name.cmp(&b.name));
+        applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
         applications
     }
 
@@ -100,7 +100,10 @@ impl Application {
             .match_indices(&filter.to_lowercase())
             .map(|(index, _)| index)
             .collect::<Vec<usize>>();
-        spans.push(Span::from(format!(" {} ", self.icon)));
+        spans.push(Span::styled(
+            format!(" {} ", self.icon.str),
+            Style::new().fg(self.icon.color),
+        ));
         if filter.len() == 0 || indices.len() == 0 {
             spans.push(Span::raw(name));
             return Line::from(spans);
@@ -112,7 +115,7 @@ impl Application {
         for index in indices.iter() {
             let start = *index;
             let end = start + filter.len();
-            spans.push(Span::raw(&name[start..end]).bold().reversed());
+            spans.push(Span::raw(&name[start..end]).style(Style::new().bold().bg(Color::DarkGray)));
             let next_index: usize;
             if iteration < indices.len() - 1 {
                 iteration += 1;
@@ -125,23 +128,15 @@ impl Application {
         Line::from(spans)
     }
 
-    fn get_icon(name: &str, categories: Vec<String>) -> String {
-        let mut i = 0;
-        while i < APPLICATION_ICON_MAP.len() {
-            if APPLICATION_ICON_MAP[i].0.to_lowercase() == name.to_lowercase() {
-                return APPLICATION_ICON_MAP[i].1.to_string();
-            }
-            i += 1;
+    fn get_icon(name: &str, categories: Vec<String>) -> &Icon {
+        if let Some(application_icon) = APPLICATION_ICON_MAP.get(name) {
+            return application_icon;
         }
-        i = 0;
-        while i < CATEGORY_ICON_MAP.len() {
-            for category in categories.iter() {
-                if CATEGORY_ICON_MAP[i].0.to_lowercase() == category.to_lowercase() {
-                    return CATEGORY_ICON_MAP[i].1.to_string();
-                }
+        for category in categories.iter() {
+            if let Some(category_icon) = CATEGORY_ICON_MAP.get(category) {
+                return category_icon;
             }
-            i += 1;
         }
-        " ".to_string()
+        &Icon::EMPTY
     }
 }
