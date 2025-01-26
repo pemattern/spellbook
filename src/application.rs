@@ -4,12 +4,13 @@ use ratatui::{
     style::{Color, Style, Stylize},
     text::{Line, Span},
 };
-use std::{env, fs, path::Path};
+use std::{env, ffi::CString, fs, path::Path};
 
 #[derive(Clone, Debug)]
 pub struct Application {
     pub name: String,
-    pub exec: String,
+    pub filename: CString,
+    pub args: Vec<CString>,
     pub terminal: bool,
     pub icon: Icon,
 }
@@ -50,13 +51,26 @@ impl Application {
                 None => Vec::new(),
             };
             let icon = Self::get_icon(name, categories).clone();
+            let exec_split = exec
+                .split_whitespace()
+                .filter(|e| !e.starts_with('%'))
+                .map(|e| e.to_string())
+                .collect::<Vec<String>>();
+            let Some(filename_ref) = exec_split.first() else {
+                return None;
+            };
+            let filename = CString::new(filename_ref.to_string()).unwrap();
+            let mut args = Vec::new();
+            if exec_split.len() > 1 {
+                args = exec_split[1..]
+                    .iter()
+                    .map(|a| CString::new(a.to_string()).unwrap())
+                    .collect::<Vec<CString>>();
+            }
             return Some(Self {
                 name: name.to_string(),
-                exec: exec
-                    .split_whitespace()
-                    .filter(|s| !s.starts_with('%'))
-                    .collect::<Vec<&str>>()
-                    .join(" "),
+                filename,
+                args,
                 terminal,
                 icon,
             });
