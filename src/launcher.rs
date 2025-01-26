@@ -1,8 +1,12 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use nix::{
-    sys::signal::kill,
-    unistd::{execvp, fork, getppid, ForkResult},
+    sys::{
+        signal::{kill, Signal},
+        wait::{waitpid, WaitPidFlag, WaitStatus},
+    },
+    unistd::{execvp, fork, getppid, ForkResult, Pid},
 };
+use procfs::process::Process;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Position, Rect},
@@ -11,7 +15,8 @@ use ratatui::{
 };
 use std::{
     io::{self},
-    process::exit,
+    process::{exit, Command},
+    thread,
     time::Duration,
 };
 
@@ -70,68 +75,30 @@ impl Launcher {
             let _ = execvp(&application.filename, application.args.as_slice());
             return;
         }
-        let ppid = getppid();
+        let shell_pid = getppid();
+        let terminal_pid = Process::new(shell_pid.as_raw())
+            .unwrap()
+            .stat()
+            .unwrap()
+            .ppid;
         match unsafe { fork() } {
-            Ok(ForkResult::Parent { .. }) => {
-                std::thread::sleep(Duration::from_millis(1000));
-                let _ = kill(ppid, Some(nix::sys::signal::Signal::SIGKILL));
-                exit(0)
-            }
+            Ok(ForkResult::Parent { child }) => loop {
+                match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
+                    Ok(WaitStatus::StillAlive) => {
+                        let _ = kill(Pid::from_raw(terminal_pid), Signal::SIGTERM);
+                        exit(0)
+                    }
+                    Err(_) => todo!(),
+                    _ => {
+                        thread::sleep(Duration::from_millis(10));
+                    }
+                }
+            },
             Ok(ForkResult::Child) => {
                 let _ = execvp(&application.filename, application.args.as_slice());
             }
             Err(_) => todo!(),
         }
-        //     match unsafe { fork() } {
-        //         Ok(ForkResult::Child) => {
-        //             println!("child");
-        //         }
-        //         Ok(ForkResult::Parent { .. }) => {
-        //             println!("parent");
-        //         }
-        //         Err(_) => {
-        //             eprintln!("fork failed");
-        //             process::exit(1);
-        //         }
-        //     }
-    }
-
-    fn select_application_old(&mut self) {
-        // if let Some(application) = self.application_list_state.selected() {
-        //     let shell = env::var("SHELL").expect("unable to read $SHELL env");
-        //     if application.terminal {
-        //         ratatui::restore();
-        //         let _ = Command::new(&application.exec).exec();
-        //     } else {
-        //         let output = Command::new(&shell)
-        //             .args(&[
-        //                 "-c",
-        //                 format!("ps -o ppid= -p {}", std::process::id()).as_str(),
-        //             ])
-        //             .output()
-        //             .expect("unable to get ppid");
-        //         match fork() {
-        //             Ok(Fork::Child) => {
-        //                 let ppid = String::from_utf8_lossy(&output.stdout);
-        //                 let _ = Command::new(&shell)
-        //                     .args(&["-c", "sleep .1"])
-        //                     .output()
-        //                     .expect("...");
-        //                 ratatui::restore();
-        //                 let _ = Command::new(&shell)
-        //                     .args(&["-c", format!("kill -9 {}", ppid).as_str()])
-        //                     .status()
-        //                     .expect("unable to kill terminal process");
-        //             }
-        //             Ok(Fork::Parent(_)) => {
-        //                 let _ = Command::new(&shell)
-        //                     .args(&["-c", format!("{} & disown", &application.exec).as_str()])
-        //                     .exec();
-        //             }
-        //             Err(_) => panic!("fork failed"),
-        //         }
-        //     }
-        // }
     }
 
     fn handle_input(&mut self) -> io::Result<()> {
