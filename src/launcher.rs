@@ -15,6 +15,7 @@ use ratatui::{
 };
 use std::{
     io::{self},
+    mem,
     process::exit,
     thread,
     time::Duration,
@@ -22,6 +23,7 @@ use std::{
 
 use crate::{
     config::Config,
+    watcher::Watcher,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::{Counter, CounterState},
@@ -32,26 +34,44 @@ use crate::{
 
 #[derive(Debug)]
 pub struct Launcher {
+    state: LauncherState,
     input_state: InputState,
     counter_state: CounterState,
     application_list_state: ApplicationListState,
-    should_exit: bool,
+}
+
+#[derive(Debug, Default)]
+enum LauncherState {
+    #[default]
+    Running,
+    ReloadConfig,
+    Exit,
 }
 
 impl Launcher {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: &Config) -> Self {
+        Watcher::watch();
         Self {
-            input_state: InputState::from_config(&config),
+            state: LauncherState::Running,
+            input_state: InputState::from_config(config),
             counter_state: CounterState::default(),
             application_list_state: ApplicationListState::default(),
-            should_exit: false,
         }
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.should_exit {
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_input()?;
+        loop {
+            match &self.state {
+                LauncherState::Running => {
+                    terminal.draw(|frame| self.draw(frame))?;
+                    self.handle_input()?;
+                }
+                LauncherState::ReloadConfig => {
+                    let config = Config::load();
+                    let _ = mem::replace(self, Launcher::new(&config));
+                }
+                LauncherState::Exit => break,
+            }
         }
         Ok(())
     }
@@ -62,7 +82,6 @@ impl Launcher {
             .update_filter(&self.input_state.filter);
         self.counter_state = self.application_list_state.get_counter_state();
         frame.render_widget(self, frame.area());
-
         frame.set_cursor_position(Position::new(index + 2, 1));
     }
 
@@ -113,7 +132,8 @@ impl Launcher {
                     KeyCode::Enter => self.select_application(),
                     KeyCode::Down | KeyCode::Tab => self.application_list_state.select_next(),
                     KeyCode::Up | KeyCode::BackTab => self.application_list_state.select_previous(),
-                    KeyCode::Esc => self.should_exit = true,
+                    KeyCode::Esc => self.state = LauncherState::Exit,
+                    KeyCode::F(1) => self.state = LauncherState::ReloadConfig,
                     _ => {}
                 }
             }

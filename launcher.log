@@ -1,0 +1,138 @@
+2025-01-27 15:00:37.450540848 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:37.459370868 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:37.476008531 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:42.829440569 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:42.830591391 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:42.846112957 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:48.096370235 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:48.105190363 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-01-27 15:00:48.116128437 +01:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
