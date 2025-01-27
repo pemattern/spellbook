@@ -15,7 +15,7 @@ use ratatui::{
 };
 use std::{
     io::{self},
-    process::{exit, Command},
+    process::exit,
     thread,
     time::Duration,
 };
