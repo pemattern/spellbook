@@ -2,15 +2,14 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
     style::{Color, Style, Stylize},
+    text::{Line, Span},
     widgets::{
         List, ListDirection, ListState, Scrollbar, ScrollbarOrientation, ScrollbarState,
         StatefulWidget,
     },
 };
 
-use crate::application::Application;
-
-use super::counter::CounterState;
+use crate::{application::Application, config::Config};
 
 pub struct ApplicationList;
 
@@ -22,8 +21,12 @@ impl StatefulWidget for ApplicationList {
 
         let mut highlighted_and_filtered_applications = Vec::new();
         for application in &state.filtered_applications {
-            let highlighted_name = application.get_highlighted_name(state.filter.as_str());
-            highlighted_and_filtered_applications.push(highlighted_name);
+            let mut highlighted_name = vec![Span::from(" ")];
+            if state.display_icons {
+                highlighted_name.push(application.get_icon());
+            }
+            highlighted_name.append(&mut application.get_highlighted_name(state.filter.as_str()));
+            highlighted_and_filtered_applications.push(Line::from(highlighted_name));
         }
 
         let list = List::new(highlighted_and_filtered_applications)
@@ -62,10 +65,11 @@ pub struct ApplicationListState {
     filter: String,
     list_state: ListState,
     scrollbar_state: ScrollbarState,
+    display_icons: bool,
 }
 
 impl ApplicationListState {
-    pub fn default() -> Self {
+    pub fn from_config(config: &Config) -> Self {
         let applications = Application::find_all();
         Self {
             filtered_applications: applications.clone(),
@@ -73,6 +77,7 @@ impl ApplicationListState {
             filter: String::new(),
             list_state: ListState::default(),
             scrollbar_state: ScrollbarState::default(),
+            display_icons: config.application_list.display_icons,
         }
     }
 
@@ -96,8 +101,8 @@ impl ApplicationListState {
         self.filtered_applications = filtered_applications;
     }
 
-    pub fn get_counter_state(&self) -> CounterState {
-        CounterState::new(self.filtered_applications.len(), self.applications.len())
+    pub fn get_counts(&self) -> (usize, usize) {
+        (self.filtered_applications.len(), self.applications.len())
     }
 
     pub fn selected(&self) -> Option<&Application> {

@@ -1,1 +1,8 @@
-placeholder = "type to filter applicat"
+[input]
+placeholder = "Search Applications"
+
+[counter]
+display = true
+
+[application_list]
+display_icons = true

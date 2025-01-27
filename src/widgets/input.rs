@@ -22,7 +22,7 @@ pub struct InputState {
     pub filter: String,
     pub cursor_index: usize,
     overflow: usize,
-    placeholder: Option<String>,
+    placeholder: String,
     width: usize,
 }
 
@@ -32,7 +32,7 @@ impl InputState {
             filter: String::new(),
             cursor_index: 0,
             overflow: 0,
-            placeholder: config.placeholder.clone(),
+            placeholder: config.input.placeholder.clone(),
             width: 0,
         }
     }
@@ -124,10 +124,7 @@ impl InputState {
     }
 
     fn placeholder_paragraph(&self) -> Paragraph {
-        let Some(placeholder_text) = &self.placeholder else {
-            return Paragraph::new("");
-        };
-        let paragraph = Paragraph::new(placeholder_text.as_str())
+        let paragraph = Paragraph::new(self.placeholder.as_str())
             .style(Style::new().fg(Color::DarkGray).italic());
         paragraph
     }

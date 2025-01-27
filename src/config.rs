@@ -3,8 +3,11 @@ use std::{env, fs};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(default)]
 pub struct Config {
-    pub placeholder: Option<String>,
+    pub input: InputConfig,
+    pub counter: CounterConfig,
+    pub application_list: ApplicationListConfig,
 }
 
 impl Config {
@@ -21,4 +24,33 @@ impl Config {
         let home = env::var("HOME").unwrap();
         format!("{}{}", home, Self::PATH)
     }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            input: InputConfig {
+                placeholder: String::from("type to filter applications"),
+            },
+            counter: CounterConfig { display: true },
+            application_list: ApplicationListConfig {
+                display_icons: true,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct InputConfig {
+    pub placeholder: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct CounterConfig {
+    pub display: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ApplicationListConfig {
+    pub display_icons: bool,
 }

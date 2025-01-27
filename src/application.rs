@@ -50,7 +50,7 @@ impl Application {
                     .collect::<Vec<String>>(),
                 None => Vec::new(),
             };
-            let icon = Self::get_icon(name, categories).clone();
+            let icon = Self::set_icon(name, categories).clone();
             let exec_split = exec
                 .split_whitespace()
                 .filter(|e| !e.starts_with('%'))
@@ -106,7 +106,14 @@ impl Application {
         applications
     }
 
-    pub fn get_highlighted_name(&self, filter: &str) -> Line {
+    pub fn get_icon(&self) -> Span {
+        Span::styled(
+            format!("{} ", self.icon.str),
+            Style::new().fg(self.icon.color),
+        )
+    }
+
+    pub fn get_highlighted_name(&self, filter: &str) -> Vec<Span> {
         let mut spans = Vec::new();
         let name = &self.name;
         let indices = name
@@ -114,13 +121,9 @@ impl Application {
             .match_indices(&filter.to_lowercase())
             .map(|(index, _)| index)
             .collect::<Vec<usize>>();
-        spans.push(Span::styled(
-            format!(" {} ", self.icon.str),
-            Style::new().fg(self.icon.color),
-        ));
         if filter.len() == 0 || indices.len() == 0 {
             spans.push(Span::raw(name));
-            return Line::from(spans);
+            return spans;
         }
         if indices[0] > 0 {
             spans.push(Span::raw(&name[..indices[0]]));
@@ -139,10 +142,10 @@ impl Application {
             }
             spans.push(Span::raw(&name[end..next_index]));
         }
-        Line::from(spans)
+        spans
     }
 
-    fn get_icon(name: &str, categories: Vec<String>) -> &Icon {
+    fn set_icon(name: &str, categories: Vec<String>) -> &Icon {
         if let Some(application_icon) = APPLICATION_ICON_MAP.get(name) {
             return application_icon;
         }
