@@ -9,7 +9,10 @@ use ratatui::{
     },
 };
 
-use crate::{application::Application, config::Config};
+use crate::{
+    application::Application,
+    config::{ApplicationListConfig, Config},
+};
 
 pub struct ApplicationList;
 
@@ -22,7 +25,7 @@ impl StatefulWidget for ApplicationList {
         let mut highlighted_and_filtered_applications = Vec::new();
         for application in &state.filtered_applications {
             let mut highlighted_name = vec![Span::from(" ")];
-            if state.display_icons {
+            if state.config.display_icons {
                 highlighted_name.push(application.get_icon());
             }
             highlighted_name.append(&mut application.get_highlighted_name(state.filter.as_str()));
@@ -65,7 +68,7 @@ pub struct ApplicationListState {
     filter: String,
     list_state: ListState,
     scrollbar_state: ScrollbarState,
-    display_icons: bool,
+    pub config: ApplicationListConfig,
 }
 
 impl ApplicationListState {
@@ -77,7 +80,7 @@ impl ApplicationListState {
             filter: String::new(),
             list_state: ListState::default(),
             scrollbar_state: ScrollbarState::default(),
-            display_icons: config.application_list.display_icons,
+            config: config.application_list.clone(),
         }
     }
 

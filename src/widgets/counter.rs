@@ -5,14 +5,14 @@ use ratatui::{
     widgets::{Paragraph, StatefulWidget, Widget},
 };
 
-use crate::config::Config;
+use crate::config::{Config, CounterConfig};
 
 pub struct Counter;
 
 impl StatefulWidget for Counter {
     type State = CounterState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut CounterState) {
-        if !state.display {
+        if !state.config.display {
             return;
         }
         let paragraph = Paragraph::new(state.text())
@@ -22,19 +22,19 @@ impl StatefulWidget for Counter {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct CounterState {
-    display: bool,
     current: usize,
     max: usize,
+    pub config: CounterConfig,
 }
 
 impl CounterState {
     pub fn from_config(config: &Config) -> Self {
         Self {
-            display: config.counter.display,
             current: 0,
             max: 0,
+            config: config.counter.clone(),
         }
     }
 

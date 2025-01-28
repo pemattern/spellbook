@@ -2,7 +2,7 @@ use crate::icon::{Icon, APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
 use ini::Ini;
 use ratatui::{
     style::{Color, Style, Stylize},
-    text::{Line, Span},
+    text::Span,
 };
 use std::{env, ffi::CString, fs, path::Path};
 

@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Paragraph, StatefulWidget, Widget},
 };
 
-use crate::config::Config;
+use crate::config::{Config, InputConfig};
 
 pub struct Input;
 
@@ -22,8 +22,8 @@ pub struct InputState {
     pub filter: String,
     pub cursor_index: usize,
     overflow: usize,
-    placeholder: String,
     width: usize,
+    pub config: InputConfig,
 }
 
 impl InputState {
@@ -32,8 +32,8 @@ impl InputState {
             filter: String::new(),
             cursor_index: 0,
             overflow: 0,
-            placeholder: config.input.placeholder.clone(),
             width: 0,
+            config: config.input.clone(),
         }
     }
 
@@ -124,7 +124,7 @@ impl InputState {
     }
 
     fn placeholder_paragraph(&self) -> Paragraph {
-        let paragraph = Paragraph::new(self.placeholder.as_str())
+        let paragraph = Paragraph::new(self.config.placeholder.as_str())
             .style(Style::new().fg(Color::DarkGray).italic());
         paragraph
     }

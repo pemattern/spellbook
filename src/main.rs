@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, sync::mpsc};
 
 use config::Config;
 use launcher::Launcher;
@@ -15,8 +15,9 @@ mod widgets;
 fn main() -> io::Result<()> {
     let config = Config::load();
     let mut terminal = ratatui::init();
-    Watcher::watch();
-    let app_result = Launcher::new(&config).run(&mut terminal);
+    let (sender, receiver) = mpsc::channel::<()>();
+    Watcher::watch(sender);
+    let app_result = Launcher::new(&config).run(&mut terminal, receiver);
     ratatui::restore();
     app_result
 }

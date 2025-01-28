@@ -1,4 +1,4 @@
-use std::thread;
+use std::{sync::mpsc, thread};
 
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify};
 
@@ -8,21 +8,26 @@ use crate::{config::Config, logger::Logger};
 pub struct Watcher;
 
 impl Watcher {
-    pub fn watch() {
-        let mut inotify = Self::refresh_inotify();
-        thread::spawn(move || loop {
-            let Ok(events) = inotify.read_events() else {
-                continue;
-            };
-            for event in events.iter() {
-                match event.mask {
-                    AddWatchFlags::IN_IGNORED => {
-                        inotify = Self::refresh_inotify();
+    pub fn watch(sender: mpsc::Sender<()>) {
+        thread::spawn(move || {
+            let mut inotify = Self::refresh_inotify();
+            loop {
+                let Ok(events) = inotify.read_events() else {
+                    continue;
+                };
+                for event in events.iter() {
+                    match event.mask {
+                        AddWatchFlags::IN_IGNORED => {
+                            inotify = Self::refresh_inotify();
+                        }
+                        AddWatchFlags::IN_ATTRIB => {
+                            sender.send(()).unwrap();
+                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
+                Logger::log(format!("{:#?}", events).as_str());
             }
-            Logger::log(format!("{:#?}", events).as_str());
         });
     }
 }

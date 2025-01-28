@@ -16,6 +16,7 @@ use ratatui::{
 use std::{
     io::{self},
     process::exit,
+    sync::mpsc,
     thread,
     time::Duration,
 };
@@ -51,10 +52,18 @@ impl Launcher {
         }
     }
 
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+    pub fn run(
+        &mut self,
+        terminal: &mut DefaultTerminal,
+        receiver: mpsc::Receiver<()>,
+    ) -> io::Result<()> {
         loop {
             match &self.mode {
                 RunMode::Running => {
+                    if receiver.try_recv() == Ok(()) {
+                        terminal.clear().unwrap();
+                        self.state.reload_config(&Config::load());
+                    }
                     terminal.draw(|frame| self.draw(frame))?;
                     self.handle_input()?;
                 }
@@ -179,5 +188,11 @@ impl LauncherState {
             counter: CounterState::from_config(&config),
             application_list: ApplicationListState::from_config(&config),
         }
+    }
+
+    fn reload_config(&mut self, config: &Config) {
+        self.input.config = config.input.clone();
+        self.counter.config = config.counter.clone();
+        self.application_list.config = config.application_list.clone();
     }
 }
