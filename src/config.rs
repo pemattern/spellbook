@@ -7,6 +7,7 @@ use serde::Deserialize;
 pub struct Config {
     pub input: InputConfig,
     pub counter: CounterConfig,
+    pub divider: DividerConfig,
     pub application_list: ApplicationListConfig,
 }
 
@@ -33,6 +34,10 @@ impl Default for Config {
                 placeholder: String::from("type to filter applications"),
             },
             counter: CounterConfig { display: true },
+            divider: DividerConfig {
+                display: true,
+                character: '─',
+            },
             application_list: ApplicationListConfig {
                 display_icons: true,
             },
@@ -48,6 +53,12 @@ pub struct InputConfig {
 #[derive(Debug, Clone, Deserialize)]
 pub struct CounterConfig {
     pub display: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DividerConfig {
+    pub display: bool,
+    pub character: char,
 }
 
 #[derive(Debug, Clone, Deserialize)]

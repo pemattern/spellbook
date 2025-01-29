@@ -14,21 +14,10 @@ impl StatefulWidget for Divider {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let paragraph = Paragraph::new(
             (0..area.width)
-                .map(|_| state.divider.character)
+                .map(|_| state.config.divider.character)
                 .collect::<String>(),
         )
         .style(Style::new().fg(Color::White));
         Widget::render(paragraph, area, buf);
-    }
-}
-
-#[derive(Debug)]
-pub struct DividerState {
-    character: char,
-}
-
-impl Default for DividerState {
-    fn default() -> Self {
-        Self { character: '─' }
     }
 }

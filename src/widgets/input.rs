@@ -1,6 +1,6 @@
 use ratatui::{
     buffer::Buffer,
-    layout::Rect,
+    layout::{Constraint, Layout, Position, Rect},
     style::{Color, Style, Stylize},
     widgets::{Paragraph, StatefulWidget, Widget},
 };
@@ -12,8 +12,26 @@ pub struct Input;
 impl StatefulWidget for Input {
     type State = LauncherState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        state.input.width = area.width as usize;
-        Widget::render(state.input.paragraph(), area, buf);
+        let [icon_area, input_area] =
+            Layout::horizontal([Constraint::Length(3), Constraint::Min(1)]).areas(area);
+        let icon = Paragraph::new("");
+        state.input.width = input_area.width as usize;
+        let input_text;
+        if state.input.filter.len() == 0 {
+            input_text = Paragraph::new(state.config.input.placeholder.as_str())
+                .style(Style::new().fg(Color::DarkGray).italic());
+        } else {
+            let len = state
+                .input
+                .filter
+                .len()
+                .min(state.input.width + state.input.overflow);
+            let filter_text_to_display = &state.input.filter[state.input.overflow..len];
+            input_text =
+                Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White));
+        }
+        Widget::render(icon, icon_area, buf);
+        Widget::render(input_text, input_area, buf);
     }
 }
 
@@ -26,6 +44,10 @@ pub struct InputState {
 }
 
 impl InputState {
+    pub fn get_cursor_position(&self) -> Position {
+        Position::new(self.cursor_index as u16 + 5, 1)
+    }
+
     pub fn move_cursor_left(&mut self) {
         if self.cursor_index == 0 && self.overflow > 0 {
             self.overflow = self.overflow.saturating_sub(1);
@@ -96,25 +118,5 @@ impl InputState {
     fn clamp_cursor(&self, new_cursor_pos: usize) -> usize {
         let max = self.filter.chars().count().min(self.width);
         new_cursor_pos.clamp(0, max)
-    }
-
-    pub fn paragraph(&self) -> Paragraph {
-        if self.filter.len() == 0 {
-            return self.placeholder_paragraph();
-        }
-        self.filter_paragraph()
-    }
-
-    fn filter_paragraph(&self) -> Paragraph {
-        let len = self.filter.len().min(self.width + self.overflow);
-        let filter_text_to_display = &self.filter[self.overflow..len];
-        let paragraph = Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White));
-        paragraph
-    }
-
-    fn placeholder_paragraph(&self) -> Paragraph {
-        let paragraph = Paragraph::new(self.config.placeholder.as_str())
-            .style(Style::new().fg(Color::DarkGray).italic());
-        paragraph
     }
 }

@@ -19,22 +19,8 @@ impl StatefulWidget for ApplicationList {
         let [_, scrollbar_area] =
             Layout::horizontal([Constraint::Min(1), Constraint::Max(1)]).areas(area);
 
-        let mut filtered_applications = state
-            .application_list
-            .applications
-            .clone()
-            .into_iter()
-            .filter(|entry| {
-                entry
-                    .name
-                    .to_lowercase()
-                    .contains(&state.input.filter.to_lowercase())
-            })
-            .collect::<Vec<Application>>();
-        filtered_applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
-
         let mut highlighted_and_filtered_applications = Vec::new();
-        for application in &filtered_applications {
+        for application in &state.application_list.filtered_applications {
             let mut highlighted_name = vec![Span::from(" ")];
             if state.config.application_list.display_icons {
                 highlighted_name.push(application.get_icon());
@@ -53,7 +39,6 @@ impl StatefulWidget for ApplicationList {
         if let None = list_state.selected() {
             list_state.select_first();
         }
-        StatefulWidget::render(list, area, buf, list_state);
 
         let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
             .begin_symbol(None)
@@ -61,34 +46,38 @@ impl StatefulWidget for ApplicationList {
             .track_symbol(None)
             .thumb_symbol("┃")
             .style(Style::new().fg(Color::White));
-
-        let scrollable_range = (filtered_applications.len() as i16 - area.height as i16 + 3).max(0);
-
+        let scrollable_range =
+            (state.application_list.filtered_applications.len() as i16 - area.height as i16 + 3)
+                .max(0);
         let mut scrollbar_state = state
             .application_list
             .scrollbar_state
             .content_length(scrollable_range as usize)
             .position(list_state.offset());
 
+        StatefulWidget::render(list, area, buf, list_state);
         StatefulWidget::render(scrollbar, scrollbar_area, buf, &mut scrollbar_state);
     }
 }
 
 #[derive(Debug)]
 pub struct ApplicationListState {
-    filtered_applications: Vec<Application>,
-    applications: Vec<Application>,
+    pub filtered_applications: Vec<Application>,
+    pub applications: Vec<Application>,
     list_state: ListState,
     scrollbar_state: ScrollbarState,
 }
 
 impl ApplicationListState {
-    pub fn get_counter_text(&self) -> String {
-        format!(
-            "{} / {}",
-            self.filtered_applications.len(),
-            self.applications.len()
-        )
+    pub fn update(&mut self, filter: &str) {
+        let mut filtered_applications = self
+            .applications
+            .clone()
+            .into_iter()
+            .filter(|entry| entry.name.to_lowercase().contains(&filter.to_lowercase()))
+            .collect::<Vec<Application>>();
+        filtered_applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        self.filtered_applications = filtered_applications;
     }
 
     pub fn selected(&self) -> Option<&Application> {

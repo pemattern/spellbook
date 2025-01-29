@@ -9,14 +9,13 @@ use nix::{
 use procfs::process::Process;
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Layout, Margin, Position, Rect},
+    layout::{Constraint, Layout, Margin, Rect},
     widgets::{Block, StatefulWidget, Widget},
-    DefaultTerminal, Frame,
+    Frame,
 };
 use std::{
     io::{self},
     process::exit,
-    sync::mpsc,
     thread,
     time::Duration,
 };
@@ -25,8 +24,8 @@ use crate::{
     config::Config,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
-        counter::{Counter, CounterState},
-        divider::{Divider, DividerState},
+        counter::Counter,
+        divider::Divider,
         input::{Input, InputState},
     },
 };
@@ -45,25 +44,18 @@ enum RunMode {
 }
 
 impl Launcher {
-    pub fn new(config: Config) -> Self {
+    pub fn new() -> Self {
         Self {
             mode: RunMode::Running,
-            state: LauncherState::from_config(config),
+            state: LauncherState::default(),
         }
     }
 
-    pub fn run(
-        &mut self,
-        terminal: &mut DefaultTerminal,
-        receiver: mpsc::Receiver<()>,
-    ) -> io::Result<()> {
+    pub fn run(&mut self) -> io::Result<()> {
+        let mut terminal = ratatui::init();
         loop {
             match &self.mode {
                 RunMode::Running => {
-                    if receiver.try_recv() == Ok(()) {
-                        terminal.clear().unwrap();
-                        self.state.reload_config(Config::load());
-                    }
                     terminal.draw(|frame| self.draw(frame))?;
                     self.handle_input()?;
                 }
@@ -74,9 +66,28 @@ impl Launcher {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let index = self.state.input.cursor_index as u16;
+        frame.set_cursor_position(self.state.input.get_cursor_position());
         frame.render_widget(self, frame.area());
-        frame.set_cursor_position(Position::new(index + 2, 1));
+    }
+
+    fn handle_input(&mut self) -> io::Result<()> {
+        if let Event::Key(key) = event::read()? {
+            if key.kind == KeyEventKind::Press {
+                match key.code {
+                    KeyCode::Char(to_insert) => self.state.input.enter_char(to_insert),
+                    KeyCode::Backspace => self.state.input.delete_char(),
+                    KeyCode::Delete => self.state.input.right_delete_char(),
+                    KeyCode::Left => self.state.input.move_cursor_left(),
+                    KeyCode::Right => self.state.input.move_cursor_right(),
+                    KeyCode::Enter => self.select_application(),
+                    KeyCode::Down | KeyCode::Tab => self.state.application_list.select_next(),
+                    KeyCode::Up | KeyCode::BackTab => self.state.application_list.select_previous(),
+                    KeyCode::Esc => self.mode = RunMode::Exit,
+                    _ => {}
+                }
+            }
+        }
+        Ok(())
     }
 
     fn select_application(&mut self) {
@@ -113,30 +124,12 @@ impl Launcher {
             Err(_) => todo!(),
         }
     }
-
-    fn handle_input(&mut self) -> io::Result<()> {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Press {
-                match key.code {
-                    KeyCode::Char(to_insert) => self.state.input.enter_char(to_insert),
-                    KeyCode::Backspace => self.state.input.delete_char(),
-                    KeyCode::Delete => self.state.input.right_delete_char(),
-                    KeyCode::Left => self.state.input.move_cursor_left(),
-                    KeyCode::Right => self.state.input.move_cursor_right(),
-                    KeyCode::Enter => self.select_application(),
-                    KeyCode::Down | KeyCode::Tab => self.state.application_list.select_next(),
-                    KeyCode::Up | KeyCode::BackTab => self.state.application_list.select_previous(),
-                    KeyCode::Esc => self.mode = RunMode::Exit,
-                    _ => {}
-                }
-            }
-        }
-        Ok(())
-    }
 }
 
 impl Widget for &mut Launcher {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        self.state.application_list.update(&self.state.input.filter);
+
         let main_block = Block::bordered();
         Widget::render(main_block, area, buf);
 
@@ -146,11 +139,10 @@ impl Widget for &mut Launcher {
             Constraint::Min(1),
         ])
         .areas(area.inner(Margin::new(1, 1)));
-        let counter_text = self.state.application_list.get_counter_text();
         let [filter_area, _, counter_area] = Layout::horizontal([
             Constraint::Min(1),
             Constraint::Length(1),
-            Constraint::Length(counter_text.len() as u16),
+            Constraint::Length(9),
         ])
         .areas(filter_and_counter_area.inner(Margin::new(1, 0)));
         StatefulWidget::render(Input, filter_area, buf, &mut self.state);
@@ -164,23 +156,21 @@ impl Widget for &mut Launcher {
 pub struct LauncherState {
     pub config: Config,
     pub input: InputState,
-    pub counter: CounterState,
-    pub divider: DividerState,
     pub application_list: ApplicationListState,
 }
 
 impl LauncherState {
-    pub fn from_config(config: Config) -> Self {
+    fn reload_config(&mut self) {
+        self.config = Config::load();
+    }
+}
+
+impl Default for LauncherState {
+    fn default() -> Self {
         Self {
-            config,
+            config: Config::load(),
             input: InputState::default(),
-            counter: CounterState::default(),
-            divider: DividerState::default(),
             application_list: ApplicationListState::default(),
         }
-    }
-
-    fn reload_config(&mut self, config: Config) {
-        self.config = config;
     }
 }
