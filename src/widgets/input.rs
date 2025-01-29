@@ -5,38 +5,27 @@ use ratatui::{
     widgets::{Paragraph, StatefulWidget, Widget},
 };
 
-use crate::config::{Config, InputConfig};
+use crate::launcher::LauncherState;
 
 pub struct Input;
 
 impl StatefulWidget for Input {
-    type State = InputState;
+    type State = LauncherState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        state.width = area.width as usize;
-        Widget::render(state.paragraph(), area, buf);
+        state.input.width = area.width as usize;
+        Widget::render(state.input.paragraph(), area, buf);
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct InputState {
     pub filter: String,
     pub cursor_index: usize,
     overflow: usize,
     width: usize,
-    pub config: InputConfig,
 }
 
 impl InputState {
-    pub fn from_config(config: &Config) -> Self {
-        Self {
-            filter: String::new(),
-            cursor_index: 0,
-            overflow: 0,
-            width: 0,
-            config: config.input.clone(),
-        }
-    }
-
     pub fn move_cursor_left(&mut self) {
         if self.cursor_index == 0 && self.overflow > 0 {
             self.overflow = self.overflow.saturating_sub(1);

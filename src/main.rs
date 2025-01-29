@@ -17,7 +17,7 @@ fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
     let (sender, receiver) = mpsc::channel::<()>();
     Watcher::watch(sender);
-    let app_result = Launcher::new(&config).run(&mut terminal, receiver);
+    let app_result = Launcher::new(config).run(&mut terminal, receiver);
     ratatui::restore();
     app_result
 }

@@ -26,7 +26,7 @@ use crate::{
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::{Counter, CounterState},
-        divider::Divider,
+        divider::{Divider, DividerState},
         input::{Input, InputState},
     },
 };
@@ -45,10 +45,10 @@ enum RunMode {
 }
 
 impl Launcher {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(config: Config) -> Self {
         Self {
             mode: RunMode::Running,
-            state: LauncherState::from_config(&config),
+            state: LauncherState::from_config(config),
         }
     }
 
@@ -62,7 +62,7 @@ impl Launcher {
                 RunMode::Running => {
                     if receiver.try_recv() == Ok(()) {
                         terminal.clear().unwrap();
-                        self.state.reload_config(&Config::load());
+                        self.state.reload_config(Config::load());
                     }
                     terminal.draw(|frame| self.draw(frame))?;
                     self.handle_input()?;
@@ -75,12 +75,6 @@ impl Launcher {
 
     fn draw(&mut self, frame: &mut Frame) {
         let index = self.state.input.cursor_index as u16;
-        self.state
-            .application_list
-            .update_filter(&self.state.input.filter);
-        self.state
-            .counter
-            .update_counts(self.state.application_list.get_counts());
         frame.render_widget(self, frame.area());
         frame.set_cursor_position(Position::new(index + 2, 1));
     }
@@ -152,47 +146,41 @@ impl Widget for &mut Launcher {
             Constraint::Min(1),
         ])
         .areas(area.inner(Margin::new(1, 1)));
+        let counter_text = self.state.application_list.get_counter_text();
         let [filter_area, _, counter_area] = Layout::horizontal([
             Constraint::Min(1),
             Constraint::Length(1),
-            Constraint::Length(self.state.counter.width()),
+            Constraint::Length(counter_text.len() as u16),
         ])
         .areas(filter_and_counter_area.inner(Margin::new(1, 0)));
-        StatefulWidget::render(Input, filter_area, buf, &mut self.state.input);
-
-        let divider = Divider::new('─');
-        Widget::render(divider, divider_area, buf);
-
-        StatefulWidget::render(Counter, counter_area, buf, &mut self.state.counter);
-
-        StatefulWidget::render(
-            ApplicationList,
-            list_area,
-            buf,
-            &mut self.state.application_list,
-        );
+        StatefulWidget::render(Input, filter_area, buf, &mut self.state);
+        StatefulWidget::render(Divider, divider_area, buf, &mut self.state);
+        StatefulWidget::render(Counter, counter_area, buf, &mut self.state);
+        StatefulWidget::render(ApplicationList, list_area, buf, &mut self.state);
     }
 }
 
 #[derive(Debug)]
 pub struct LauncherState {
-    input: InputState,
-    counter: CounterState,
-    application_list: ApplicationListState,
+    pub config: Config,
+    pub input: InputState,
+    pub counter: CounterState,
+    pub divider: DividerState,
+    pub application_list: ApplicationListState,
 }
 
 impl LauncherState {
-    pub fn from_config(config: &Config) -> Self {
+    pub fn from_config(config: Config) -> Self {
         Self {
-            input: InputState::from_config(&config),
-            counter: CounterState::from_config(&config),
-            application_list: ApplicationListState::from_config(&config),
+            config,
+            input: InputState::default(),
+            counter: CounterState::default(),
+            divider: DividerState::default(),
+            application_list: ApplicationListState::default(),
         }
     }
 
-    fn reload_config(&mut self, config: &Config) {
-        self.input.config = config.input.clone();
-        self.counter.config = config.counter.clone();
-        self.application_list.config = config.application_list.clone();
+    fn reload_config(&mut self, config: Config) {
+        self.config = config;
     }
 }
