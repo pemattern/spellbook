@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use crossterm::event::KeyCode;
 use nix::{
     sys::{
         signal::{kill, Signal},
@@ -16,12 +16,14 @@ use ratatui::{
 use std::{
     io::{self},
     process::exit,
+    sync::mpsc,
     thread,
     time::Duration,
 };
 
 use crate::{
     config::Config,
+    message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::Counter,
@@ -33,6 +35,7 @@ use crate::{
 #[derive(Debug)]
 pub struct Launcher {
     mode: RunMode,
+    receiver: mpsc::Receiver<Message>,
     state: LauncherState,
 }
 
@@ -44,9 +47,10 @@ enum RunMode {
 }
 
 impl Launcher {
-    pub fn new() -> Self {
+    pub fn new(receiver: mpsc::Receiver<Message>) -> Self {
         Self {
             mode: RunMode::Running,
+            receiver,
             state: LauncherState::default(),
         }
     }
@@ -57,7 +61,7 @@ impl Launcher {
             match &self.mode {
                 RunMode::Running => {
                     terminal.draw(|frame| self.draw(frame))?;
-                    self.handle_input()?;
+                    self.handle_messages()?;
                 }
                 RunMode::Exit => break,
             }
@@ -70,22 +74,37 @@ impl Launcher {
         frame.render_widget(self, frame.area());
     }
 
-    fn handle_input(&mut self) -> io::Result<()> {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Press {
-                match key.code {
-                    KeyCode::Char(to_insert) => self.state.input.enter_char(to_insert),
-                    KeyCode::Backspace => self.state.input.delete_char(),
-                    KeyCode::Delete => self.state.input.right_delete_char(),
-                    KeyCode::Left => self.state.input.move_cursor_left(),
-                    KeyCode::Right => self.state.input.move_cursor_right(),
-                    KeyCode::Enter => self.select_application(),
-                    KeyCode::Down | KeyCode::Tab => self.state.application_list.select_next(),
-                    KeyCode::Up | KeyCode::BackTab => self.state.application_list.select_previous(),
-                    KeyCode::Esc => self.mode = RunMode::Exit,
-                    _ => {}
-                }
+    fn handle_messages(&mut self) -> io::Result<()> {
+        let message = self.receiver.recv().unwrap();
+        match message {
+            Message::Input(key_code) => self.handle_input(key_code)?,
+            Message::Redraw => {}
+            Message::ReloadConfig => self.state.reload_config(),
+        }
+        Ok(())
+    }
+
+    fn handle_input(&mut self, code: KeyCode) -> io::Result<()> {
+        match code {
+            KeyCode::Char(to_insert) => {
+                self.state.input.enter_char(to_insert);
+                self.state.application_list.update(&self.state.input.filter);
             }
+            KeyCode::Backspace => {
+                self.state.input.delete_char();
+                self.state.application_list.update(&self.state.input.filter);
+            }
+            KeyCode::Delete => {
+                self.state.input.right_delete_char();
+                self.state.application_list.update(&self.state.input.filter);
+            }
+            KeyCode::Left => self.state.input.move_cursor_left(),
+            KeyCode::Right => self.state.input.move_cursor_right(),
+            KeyCode::Enter => self.select_application(),
+            KeyCode::Down | KeyCode::Tab => self.state.application_list.select_next(),
+            KeyCode::Up | KeyCode::BackTab => self.state.application_list.select_previous(),
+            KeyCode::Esc => self.mode = RunMode::Exit,
+            _ => {}
         }
         Ok(())
     }
@@ -128,26 +147,24 @@ impl Launcher {
 
 impl Widget for &mut Launcher {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        self.state.application_list.update(&self.state.input.filter);
-
         let main_block = Block::bordered();
         Widget::render(main_block, area, buf);
 
-        let [filter_and_counter_area, divider_area, list_area] = Layout::vertical([
+        let [input_and_counter_area, divider_area, list_area] = Layout::vertical([
             Constraint::Length(1),
             Constraint::Length(1),
             Constraint::Min(1),
         ])
         .areas(area.inner(Margin::new(1, 1)));
-        let [filter_area, _, counter_area] = Layout::horizontal([
+        let [input_area, _margin_area, counter_area] = Layout::horizontal([
             Constraint::Min(1),
             Constraint::Length(1),
             Constraint::Length(9),
         ])
-        .areas(filter_and_counter_area.inner(Margin::new(1, 0)));
-        StatefulWidget::render(Input, filter_area, buf, &mut self.state);
-        StatefulWidget::render(Divider, divider_area, buf, &mut self.state);
-        StatefulWidget::render(Counter, counter_area, buf, &mut self.state);
+        .areas(input_and_counter_area.inner(Margin::new(1, 0)));
+        StatefulWidget::render(Input, input_area, buf, &mut self.state);
+        Widget::render(Divider::new(&self.state), divider_area, buf);
+        Widget::render(Counter::new(&self.state), counter_area, buf);
         StatefulWidget::render(ApplicationList, list_area, buf, &mut self.state);
     }
 }

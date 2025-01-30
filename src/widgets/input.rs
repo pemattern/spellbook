@@ -15,7 +15,7 @@ impl StatefulWidget for Input {
         let [icon_area, input_area] =
             Layout::horizontal([Constraint::Length(3), Constraint::Min(1)]).areas(area);
         let icon = Paragraph::new("");
-        state.input.width = input_area.width as usize;
+        state.input.width = area.width as usize;
         let input_text;
         if state.input.filter.len() == 0 {
             input_text = Paragraph::new(state.config.input.placeholder.as_str())
@@ -35,7 +35,7 @@ impl StatefulWidget for Input {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct InputState {
     pub filter: String,
     pub cursor_index: usize,
@@ -118,5 +118,16 @@ impl InputState {
     fn clamp_cursor(&self, new_cursor_pos: usize) -> usize {
         let max = self.filter.chars().count().min(self.width);
         new_cursor_pos.clamp(0, max)
+    }
+}
+
+impl Default for InputState {
+    fn default() -> Self {
+        Self {
+            filter: String::new(),
+            cursor_index: 0,
+            width: 32,
+            overflow: 0,
+        }
     }
 }

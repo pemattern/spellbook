@@ -34,10 +34,7 @@ impl Default for Config {
                 placeholder: String::from("type to filter applications"),
             },
             counter: CounterConfig { display: true },
-            divider: DividerConfig {
-                display: true,
-                character: '─',
-            },
+            divider: DividerConfig { character: '─' },
             application_list: ApplicationListConfig {
                 display_icons: true,
             },
@@ -57,7 +54,6 @@ pub struct CounterConfig {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DividerConfig {
-    pub display: bool,
     pub character: char,
 }
 
