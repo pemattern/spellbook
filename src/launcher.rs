@@ -18,7 +18,7 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use crate::{
@@ -27,6 +27,7 @@ use crate::{
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::Counter,
+        debug::{Debug, DebugState},
         divider::Divider,
         input::{Input, InputState},
     },
@@ -55,8 +56,11 @@ impl Launcher {
         }
     }
 
-    pub fn run(&mut self) -> io::Result<()> {
+    pub fn run(&mut self, start_time: Instant) -> io::Result<()> {
         let mut terminal = ratatui::init();
+        self.state
+            .debug
+            .log(format!("Startup time: {:.2?}", start_time.elapsed()));
         loop {
             match &self.mode {
                 RunMode::Running => {
@@ -150,12 +154,15 @@ impl Widget for &mut Launcher {
         let main_block = Block::bordered();
         Widget::render(main_block, area, buf);
 
-        let [input_and_counter_area, divider_area, list_area] = Layout::vertical([
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Min(1),
-        ])
-        .areas(area.inner(Margin::new(1, 1)));
+        let [input_and_counter_area, divider_area, list_area, debug_divider_area, debug_area] =
+            Layout::vertical([
+                Constraint::Length(1),
+                Constraint::Length(1),
+                Constraint::Min(1),
+                Constraint::Length(1),
+                Constraint::Length(1),
+            ])
+            .areas(area.inner(Margin::new(1, 1)));
         let [input_area, _margin_area, counter_area] = Layout::horizontal([
             Constraint::Min(1),
             Constraint::Length(1),
@@ -166,6 +173,8 @@ impl Widget for &mut Launcher {
         Widget::render(Divider::new(&self.state), divider_area, buf);
         Widget::render(Counter::new(&self.state), counter_area, buf);
         StatefulWidget::render(ApplicationList, list_area, buf, &mut self.state);
+        Widget::render(Divider::new(&self.state), debug_divider_area, buf);
+        Widget::render(Debug::new(&self.state), debug_area, buf);
     }
 }
 
@@ -174,6 +183,7 @@ pub struct LauncherState {
     pub config: Config,
     pub input: InputState,
     pub application_list: ApplicationListState,
+    pub debug: DebugState,
 }
 
 impl LauncherState {
@@ -188,6 +198,7 @@ impl Default for LauncherState {
             config: Config::load(),
             input: InputState::default(),
             application_list: ApplicationListState::default(),
+            debug: DebugState::default(),
         }
     }
 }

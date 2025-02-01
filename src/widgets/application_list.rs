@@ -72,13 +72,12 @@ pub struct ApplicationListState {
 
 impl ApplicationListState {
     pub fn update(&mut self, filter: &str) {
-        let mut filtered_applications = self
+        let filtered_applications = self
             .applications
             .clone()
             .into_iter()
             .filter(|entry| entry.name.to_lowercase().contains(&filter.to_lowercase()))
             .collect::<Vec<Application>>();
-        filtered_applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
         self.filtered_applications = filtered_applications;
     }
 
