@@ -2,22 +2,24 @@ use std::{env, fs};
 
 use serde::Deserialize;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     pub input: InputConfig,
     pub counter: CounterConfig,
     pub divider: DividerConfig,
     pub application_list: ApplicationListConfig,
+    pub debug: DebugConfig,
 }
 
 impl Config {
-    pub const PATH: &str = "/Dev/launcher/src/launcher.toml";
+    const PATH: &str = "/Dev/launcher/src/launcher.toml";
 
     pub fn load() -> Self {
         let path = Self::get_path();
         let toml = fs::read_to_string(&path).unwrap();
-        let config = toml::from_str::<Self>(&toml).unwrap();
+        let config = toml::from_str::<Self>(&toml).unwrap_or_default();
         config
     }
 
@@ -30,34 +32,84 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            input: InputConfig {
-                placeholder: String::from("type to filter applications"),
-            },
-            counter: CounterConfig { display: true },
-            divider: DividerConfig { character: '─' },
-            application_list: ApplicationListConfig {
-                display_icons: true,
-            },
+            input: InputConfig::default(),
+            counter: CounterConfig::default(),
+            divider: DividerConfig::default(),
+            application_list: ApplicationListConfig::default(),
+            debug: DebugConfig::default(),
         }
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct InputConfig {
     pub placeholder: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct CounterConfig {
-    pub display: bool,
+impl Default for InputConfig {
+    fn default() -> Self {
+        Self {
+            placeholder: String::from("Search Applications"),
+        }
+    }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
+pub struct CounterConfig {
+    pub enable: bool,
+    pub bold: bool,
+}
+
+impl Default for CounterConfig {
+    fn default() -> Self {
+        Self {
+            enable: true,
+            bold: false,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct DividerConfig {
     pub character: char,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+impl Default for DividerConfig {
+    fn default() -> Self {
+        Self { character: '─' }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct ApplicationListConfig {
     pub display_icons: bool,
+}
+
+impl Default for ApplicationListConfig {
+    fn default() -> Self {
+        Self {
+            display_icons: true,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
+pub struct DebugConfig {
+    pub enable: bool,
+}
+
+impl Default for DebugConfig {
+    fn default() -> Self {
+        Self { enable: false }
+    }
 }

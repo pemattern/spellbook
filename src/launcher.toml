@@ -2,7 +2,10 @@
 placeholder = "Search Applications"
 
 [counter]
-display = true
+enable = true
 
 [application_list]
 display_icons = true
+
+[debug]
+enable = true

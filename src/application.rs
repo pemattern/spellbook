@@ -108,7 +108,7 @@ impl Application {
 
     pub fn get_icon(&self) -> Span {
         Span::styled(
-            format!("{} ", self.icon.str),
+            format!("{}  ", self.icon.str),
             Style::new().fg(self.icon.color),
         )
     }

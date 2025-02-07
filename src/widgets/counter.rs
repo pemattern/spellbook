@@ -1,36 +1,42 @@
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Rect},
-    style::{Color, Style},
+    style::{Color, Style, Stylize},
     widgets::{Paragraph, Widget},
 };
 
-use crate::launcher::LauncherState;
+use crate::config::CounterConfig;
 
-pub struct Counter {
+use super::application_list::ApplicationListState;
+
+pub struct Counter<'a> {
+    config: &'a CounterConfig,
     current: usize,
     max: usize,
-    display: bool,
 }
 
-impl Counter {
-    pub fn new(state: &LauncherState) -> Self {
+impl<'a> Counter<'a> {
+    pub fn new(config: &'a CounterConfig, application_list_state: &ApplicationListState) -> Self {
         Self {
-            current: state.application_list.filtered_applications.len(),
-            max: state.application_list.applications.len(),
-            display: state.config.counter.display,
+            config,
+            current: application_list_state.filtered_applications.len(),
+            max: application_list_state.applications.len(),
         }
     }
 }
 
-impl Widget for Counter {
+impl<'a> Widget for Counter<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        if !self.display {
+        if !self.config.enable {
             return;
         }
         let text = format!("{} / {}", self.current, self.max);
+        let mut style = Style::new().fg(Color::White);
+        if self.config.bold {
+            style = style.bold();
+        }
         let paragraph = Paragraph::new(text.as_str())
-            .style(Style::new().fg(Color::White))
+            .style(style)
             .alignment(Alignment::Right);
         Widget::render(paragraph, area, buf);
     }

@@ -37,6 +37,7 @@ use crate::{
 pub struct Launcher {
     mode: RunMode,
     receiver: mpsc::Receiver<Message>,
+    config: Config,
     state: LauncherState,
 }
 
@@ -52,8 +53,13 @@ impl Launcher {
         Self {
             mode: RunMode::Running,
             receiver,
+            config: Config::load(),
             state: LauncherState::default(),
         }
+    }
+
+    fn reload_config(&mut self) {
+        self.config = Config::load();
     }
 
     pub fn run(&mut self, start_time: Instant) -> io::Result<()> {
@@ -83,7 +89,7 @@ impl Launcher {
         match message {
             Message::Input(key_code) => self.handle_input(key_code)?,
             Message::Redraw => {}
-            Message::ReloadConfig => self.state.reload_config(),
+            Message::ReloadConfig => self.reload_config(),
         }
         Ok(())
     }
@@ -159,8 +165,8 @@ impl Widget for &mut Launcher {
                 Constraint::Length(1),
                 Constraint::Length(1),
                 Constraint::Min(1),
-                Constraint::Length(1),
-                Constraint::Length(1),
+                Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
+                Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
             ])
             .areas(area.inner(Margin::new(1, 1)));
         let [input_area, _margin_area, counter_area] = Layout::horizontal([
@@ -169,33 +175,39 @@ impl Widget for &mut Launcher {
             Constraint::Length(9),
         ])
         .areas(input_and_counter_area.inner(Margin::new(1, 0)));
-        StatefulWidget::render(Input, input_area, buf, &mut self.state);
-        Widget::render(Divider::new(&self.state), divider_area, buf);
-        Widget::render(Counter::new(&self.state), counter_area, buf);
-        StatefulWidget::render(ApplicationList, list_area, buf, &mut self.state);
-        Widget::render(Divider::new(&self.state), debug_divider_area, buf);
+        StatefulWidget::render(
+            Input::new(&self.config.input),
+            input_area,
+            buf,
+            &mut self.state.input,
+        );
+        Widget::render(Divider::new(&self.config.divider), divider_area, buf);
+        Widget::render(
+            Counter::new(&self.config.counter, &self.state.application_list),
+            counter_area,
+            buf,
+        );
+        StatefulWidget::render(
+            ApplicationList::new(&self.config.application_list, &self.state.input),
+            list_area,
+            buf,
+            &mut self.state.application_list,
+        );
+        Widget::render(Divider::new(&self.config.divider), debug_divider_area, buf);
         Widget::render(Debug::new(&self.state), debug_area, buf);
     }
 }
 
 #[derive(Debug)]
 pub struct LauncherState {
-    pub config: Config,
     pub input: InputState,
     pub application_list: ApplicationListState,
     pub debug: DebugState,
 }
 
-impl LauncherState {
-    fn reload_config(&mut self) {
-        self.config = Config::load();
-    }
-}
-
 impl Default for LauncherState {
     fn default() -> Self {
         Self {
-            config: Config::load(),
             input: InputState::default(),
             application_list: ApplicationListState::default(),
             debug: DebugState::default(),
