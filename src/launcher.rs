@@ -130,6 +130,7 @@ impl Launcher {
                 match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
                     Ok(WaitStatus::Exited(child, 0)) => {
                         // thread::sleep(Duration::from_millis(100));
+                        ratatui::restore();
                         exit(0);
                     }
                     Err(_) => todo!(),
