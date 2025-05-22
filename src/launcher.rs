@@ -128,7 +128,10 @@ impl Launcher {
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => loop {
                 match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
-                    Ok(WaitStatus::StillAlive) => exit(0),
+                    Ok(WaitStatus::Exited(child, 0)) => {
+                        // thread::sleep(Duration::from_millis(100));
+                        exit(0);
+                    }
                     Err(_) => todo!(),
                     _ => {
                         thread::sleep(Duration::from_millis(10));
@@ -136,8 +139,14 @@ impl Launcher {
                 }
             },
             Ok(ForkResult::Child) => {
-                setsid();
-                let _ = execvp(&application.filename, application.args.as_slice());
+                let _ = setsid();
+                match unsafe { fork() } {
+                    Ok(ForkResult::Parent { child: _ }) => exit(0),
+                    Ok(ForkResult::Child) => {
+                        let _ = execvp(&application.filename, application.args.as_slice());
+                    }
+                    Err(_) => todo!(),
+                }
             }
             Err(_) => todo!(),
         }
