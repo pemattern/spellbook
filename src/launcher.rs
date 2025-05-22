@@ -1,12 +1,8 @@
 use crossterm::event::KeyCode;
 use nix::{
-    sys::{
-        signal::{kill, Signal},
-        wait::{waitpid, WaitPidFlag, WaitStatus},
-    },
-    unistd::{execvp, fork, getppid, ForkResult, Pid},
+    sys::wait::{waitpid, WaitPidFlag, WaitStatus},
+    unistd::{execvp, fork, setsid, ForkResult},
 };
-use procfs::process::Process;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Rect},
@@ -140,6 +136,7 @@ impl Launcher {
                 }
             },
             Ok(ForkResult::Child) => {
+                setsid();
                 let _ = execvp(&application.filename, application.args.as_slice());
             }
             Err(_) => todo!(),
