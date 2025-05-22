@@ -14,7 +14,8 @@ use ratatui::{
     Frame,
 };
 use std::{
-    io::{self},
+    fs::{File, OpenOptions},
+    io::{self, Write},
     process::exit,
     sync::mpsc,
     thread,
@@ -128,19 +129,10 @@ impl Launcher {
             let _ = execvp(&application.filename, application.args.as_slice());
             return;
         }
-        let shell_pid = getppid();
-        let terminal_pid = Process::new(shell_pid.as_raw())
-            .unwrap()
-            .stat()
-            .unwrap()
-            .ppid;
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => loop {
                 match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
-                    Ok(WaitStatus::StillAlive) => {
-                        let _ = kill(Pid::from_raw(terminal_pid), Signal::SIGTERM);
-                        exit(0)
-                    }
+                    Ok(WaitStatus::StillAlive) => exit(0),
                     Err(_) => todo!(),
                     _ => {
                         thread::sleep(Duration::from_millis(10));

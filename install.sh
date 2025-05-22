@@ -1,2 +1,2 @@
 cargo build --release &&
-sudo cp ~/Dev/launcher/target/release/launcher /usr/local/bin
+sudo cp target/release/launcher /usr/local/bin
