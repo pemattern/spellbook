@@ -7,7 +7,7 @@ use ratatui::{
     Frame,
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Position, Rect},
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     symbols,
     widgets::{Block, Borders, StatefulWidget, Widget},
 };
