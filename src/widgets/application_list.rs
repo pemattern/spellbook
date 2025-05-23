@@ -27,7 +27,7 @@ impl<'a> ApplicationList<'a> {
     }
 }
 
-impl<'a> StatefulWidget for ApplicationList<'a> {
+impl StatefulWidget for ApplicationList<'_> {
     type State = ApplicationListState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [_, scrollbar_area] =

@@ -596,3 +596,1009 @@
         name: None,
     },
 ]
+2025-05-23 09:29:54.183307931 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:29:54.192083191 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:29:54.192146334 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:06.439331717 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:06.449888534 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:06.455106044 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:17.545164997 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:17.553951943 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:17.554003497 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:22.237623200 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:22.248684140 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:22.248736734 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:28.513491734 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:28.515512025 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:28.521137588 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:42.701714579 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:42.710499190 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:42.711066171 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:48.361253273 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:48.370100533 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:30:48.375077573 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:05.822154039 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:05.836165701 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:05.836224515 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:22.572566438 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:22.581287222 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:22.581423465 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:50.879172843 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:50.887931621 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:50.887984853 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:55.967981784 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:55.981132635 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:58.114415450 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:31:58.128106927 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:32:10.194399859 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 09:32:10.203194600 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:10:55.016503138 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:10:55.025224312 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:10:55.025284992 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:02.189770598 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:02.269056821 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:02.270121345 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:06.672809316 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:06.691097638 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:06.691190586 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:14.926022282 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:14.934943223 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:11:14.934988744 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:20.220254240 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:20.229127604 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:20.229197651 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:35.114100072 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:35.122975859 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:35.123034521 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:46.973050128 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:46.982150274 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:46.982226581 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:49.370938167 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:49.379849278 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:12:49.379891652 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:13:02.143278693 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_MOVE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:13:02.152114563 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_ATTRIB,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]
+2025-05-23 10:13:02.152157970 +02:00 [
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_DELETE_SELF,
+        ),
+        cookie: 0,
+        name: None,
+    },
+    InotifyEvent {
+        wd: WatchDescriptor {
+            wd: 1,
+        },
+        mask: AddWatchFlags(
+            IN_IGNORED,
+        ),
+        cookie: 0,
+        name: None,
+    },
+]

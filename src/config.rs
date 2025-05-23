@@ -1,6 +1,5 @@
 use std::{env, fs};
 
-use ratatui::widgets::BorderType;
 use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
@@ -92,12 +91,18 @@ impl Default for BorderConfig {
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct MarginConfig {
     pub x: u16,
     pub y: u16,
+}
+
+impl Default for MarginConfig {
+    fn default() -> Self {
+        Self { x: 3, y: 1 }
+    }
 }
 
 #[derive(Debug, Deserialize)]

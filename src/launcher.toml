@@ -1,16 +1,15 @@
-[input]
-placeholder = "Search Applications"
+# [input]
+# placeholder = "Search Applications"
 
-[counter]
-enable = true
+# [counter]
+# enable = true
 
 [border]
-margin = { x = 2, y = 1 }
 enable_border = false
 divider_character = ' '
 
-[application_list]
-display_icons = true
+# [application_list]
+# display_icons = true
 
-[debug]
-enable = false
+# [debug]
+# enable = false

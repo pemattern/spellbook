@@ -1,4 +1,3 @@
-use nix::NixPath;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Position, Rect},
@@ -22,9 +21,10 @@ impl StatefulWidget for Input<'_> {
     type State = InputState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [icon_area, input_area] =
-            Layout::horizontal([Constraint::Length(3), Constraint::Min(1)]).areas(area);
-        let icon = Paragraph::new("");
-        state.width = area.width as usize;
+            Layout::horizontal([Constraint::Length(4), Constraint::Min(1)]).areas(area);
+        let icon = Paragraph::new(" ").style(Style::new().bg(Color::Black));
+        // TODO: Magic number
+        state.width = (area.width - 4) as usize;
         let input_text = if state.filter.is_empty() {
             Paragraph::new(self.config.placeholder.as_str())
                 .style(Style::new().fg(Color::DarkGray).italic())
@@ -32,7 +32,8 @@ impl StatefulWidget for Input<'_> {
             let len = state.filter.len().min(state.width + state.overflow);
             let filter_text_to_display = &state.filter[state.overflow..len];
             Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White))
-        };
+        }
+        .bg(Color::Black);
         Widget::render(icon, icon_area, buf);
         Widget::render(input_text, input_area, buf);
     }

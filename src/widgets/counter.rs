@@ -25,13 +25,13 @@ impl<'a> Counter<'a> {
     }
 }
 
-impl<'a> Widget for Counter<'a> {
+impl Widget for Counter<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         if !self.config.enable {
             return;
         }
         let text = format!("{} / {}", self.current, self.max);
-        let mut style = Style::new().fg(Color::White);
+        let mut style = Style::new().fg(Color::White).bg(Color::Black);
         if self.config.bold {
             style = style.bold();
         }

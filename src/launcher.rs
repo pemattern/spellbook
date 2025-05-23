@@ -6,6 +6,8 @@ use nix::{
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Position, Rect},
+    style::{Color, Style, Stylize},
+    symbols,
     widgets::{Block, Borders, StatefulWidget, Widget},
     Frame,
 };
@@ -120,11 +122,18 @@ impl Launcher {
         let border_x = if border.enable_border { 1u16 } else { 0u16 };
         let icon_x = 3u16;
         let default_padding_x = 1u16;
-        let x = margin_x + border_x + icon_x + default_padding_x + relative_cursor_position.x;
+        let input_border_x = 1u16;
+        let x = margin_x
+            + border_x
+            + icon_x
+            + default_padding_x
+            + input_border_x
+            + relative_cursor_position.x;
 
         let margin_y = border.margin.y;
         let border_y = if border.enable_border { 1u16 } else { 0u16 };
-        let y = margin_y + border_y + relative_cursor_position.y;
+        let input_border_y = 1u16;
+        let y = margin_y + border_y + input_border_y + relative_cursor_position.y;
         Position::new(x, y)
     }
 
@@ -179,7 +188,7 @@ impl Widget for &mut Launcher {
 
         let [input_and_counter_area, divider_area, list_area, debug_divider_area, debug_area] =
             Layout::vertical([
-                Constraint::Length(1),
+                Constraint::Length(3),
                 Constraint::Length(1),
                 Constraint::Min(1),
                 Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
@@ -187,12 +196,16 @@ impl Widget for &mut Launcher {
             ])
             .areas(main_block.inner(padded_area));
         Widget::render(main_block, padded_area, buf);
-        let [input_area, _margin_area, counter_area] = Layout::horizontal([
-            Constraint::Min(1),
-            Constraint::Length(1),
-            Constraint::Length(9),
-        ])
-        .areas(input_and_counter_area.inner(Margin::new(1, 0)));
+
+        let input_block = Block::new()
+            .borders(Borders::all())
+            .border_set(symbols::border::PROPORTIONAL_WIDE)
+            .border_style(Style::new().fg(Color::Black));
+        let [input_area, counter_area] =
+            Layout::horizontal([Constraint::Min(1), Constraint::Length(9)])
+                .areas(input_block.inner(input_and_counter_area));
+        Widget::render(input_block, input_and_counter_area, buf);
+
         StatefulWidget::render(
             Input::new(&self.config.input),
             input_area,
