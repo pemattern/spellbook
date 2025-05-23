@@ -1,3 +1,4 @@
+use nix::NixPath;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Position, Rect},
@@ -17,23 +18,21 @@ impl<'a> Input<'a> {
     }
 }
 
-impl<'a> StatefulWidget for Input<'a> {
+impl StatefulWidget for Input<'_> {
     type State = InputState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [icon_area, input_area] =
             Layout::horizontal([Constraint::Length(3), Constraint::Min(1)]).areas(area);
         let icon = Paragraph::new("");
         state.width = area.width as usize;
-        let input_text;
-        if state.filter.len() == 0 {
-            input_text = Paragraph::new(self.config.placeholder.as_str())
-                .style(Style::new().fg(Color::DarkGray).italic());
+        let input_text = if state.filter.is_empty() {
+            Paragraph::new(self.config.placeholder.as_str())
+                .style(Style::new().fg(Color::DarkGray).italic())
         } else {
             let len = state.filter.len().min(state.width + state.overflow);
             let filter_text_to_display = &state.filter[state.overflow..len];
-            input_text =
-                Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White));
-        }
+            Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White))
+        };
         Widget::render(icon, icon_area, buf);
         Widget::render(input_text, input_area, buf);
     }
@@ -48,8 +47,8 @@ pub struct InputState {
 }
 
 impl InputState {
-    pub fn get_cursor_position(&self) -> Position {
-        Position::new(self.cursor_index as u16 + 5, 1)
+    pub fn relative_cursor_position(&self) -> Position {
+        Position::new(self.cursor_index as u16, 0)
     }
 
     pub fn move_cursor_left(&mut self) {

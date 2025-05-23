@@ -1,14 +1,15 @@
 use std::{env, fs};
 
+use ratatui::widgets::BorderType;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub input: InputConfig,
     pub counter: CounterConfig,
-    pub divider: DividerConfig,
+    pub border: BorderConfig,
     pub application_list: ApplicationListConfig,
     pub debug: DebugConfig,
 }
@@ -19,8 +20,7 @@ impl Config {
     pub fn load() -> Self {
         let path = Self::get_path();
         let toml = fs::read_to_string(&path).unwrap();
-        let config = toml::from_str::<Self>(&toml).unwrap_or_default();
-        config
+        toml::from_str::<Self>(&toml).unwrap()
     }
 
     pub fn get_path() -> String {
@@ -29,17 +29,17 @@ impl Config {
     }
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            input: InputConfig::default(),
-            counter: CounterConfig::default(),
-            divider: DividerConfig::default(),
-            application_list: ApplicationListConfig::default(),
-            debug: DebugConfig::default(),
-        }
-    }
-}
+// impl Default for Config {
+//     fn default() -> Self {
+//         Config {
+//             input: InputConfig::default(),
+//             counter: CounterConfig::default(),
+//             border: BorderConfig::default(),
+//             application_list: ApplicationListConfig::default(),
+//             debug: DebugConfig::default(),
+//         }
+//     }
+// }
 
 #[derive(Debug, Deserialize)]
 #[serde(default)]
@@ -76,14 +76,28 @@ impl Default for CounterConfig {
 #[derive(Debug, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
-pub struct DividerConfig {
-    pub character: char,
+pub struct BorderConfig {
+    pub margin: MarginConfig,
+    pub enable_border: bool,
+    pub divider_character: char,
 }
 
-impl Default for DividerConfig {
+impl Default for BorderConfig {
     fn default() -> Self {
-        Self { character: '─' }
+        Self {
+            margin: MarginConfig::default(),
+            enable_border: true,
+            divider_character: '─',
+        }
     }
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
+pub struct MarginConfig {
+    pub x: u16,
+    pub y: u16,
 }
 
 #[derive(Debug, Deserialize)]

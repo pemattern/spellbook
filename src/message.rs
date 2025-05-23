@@ -1,7 +1,7 @@
-use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
 
 pub enum Message {
-    Input(KeyCode),
+    Input(KeyEvent),
     Redraw,
     ReloadConfig,
 }

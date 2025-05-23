@@ -5,23 +5,23 @@ use ratatui::{
     widgets::{Paragraph, Widget},
 };
 
-use crate::config::DividerConfig;
+use crate::config::BorderConfig;
 
 pub struct Divider<'a> {
-    config: &'a DividerConfig,
+    config: &'a BorderConfig,
 }
 
 impl<'a> Divider<'a> {
-    pub fn new(config: &'a DividerConfig) -> Self {
+    pub fn new(config: &'a BorderConfig) -> Self {
         Self { config }
     }
 }
 
-impl<'a> Widget for Divider<'a> {
+impl Widget for Divider<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let paragraph = Paragraph::new(
             (0..area.width)
-                .map(|_| self.config.character)
+                .map(|_| self.config.divider_character)
                 .collect::<String>(),
         )
         .style(Style::new().fg(Color::White));

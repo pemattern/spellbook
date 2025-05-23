@@ -12,7 +12,7 @@ impl EventReader {
             match event::read().unwrap() {
                 Event::Key(key_event) => {
                     if key_event.kind == KeyEventKind::Press {
-                        sender.send(Message::Input(key_event.code)).unwrap();
+                        sender.send(Message::Input(key_event)).unwrap();
                     }
                 }
                 Event::Resize(_, _) => sender.send(Message::Redraw).unwrap(),
