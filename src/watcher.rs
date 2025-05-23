@@ -8,7 +8,7 @@ use crate::{config::Config, logger::Logger, message::Message};
 pub struct Watcher;
 
 impl Watcher {
-    pub fn new(sender: mpsc::Sender<Message>) {
+    pub fn run(sender: mpsc::Sender<Message>) {
         thread::spawn(move || {
             let mut inotify = Self::refresh_inotify();
             loop {

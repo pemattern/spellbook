@@ -147,21 +147,23 @@ impl Launcher {
             return;
         }
         match unsafe { fork() } {
-            Ok(ForkResult::Parent { child }) => loop {
-                match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
-                    Ok(WaitStatus::Exited(_, _)) => {
-                        if keep_alive {
-                            return;
+            Ok(ForkResult::Parent { child }) => {
+                if keep_alive {
+                    return;
+                }
+                loop {
+                    match waitpid(child, Some(WaitPidFlag::WNOHANG)) {
+                        Ok(WaitStatus::Exited(_, _)) => {
+                            ratatui::restore();
+                            exit(0);
                         }
-                        ratatui::restore();
-                        exit(0);
-                    }
-                    Err(_) => todo!(),
-                    _ => {
-                        thread::sleep(Duration::from_millis(10));
+                        Err(_) => todo!(),
+                        _ => {
+                            thread::sleep(Duration::from_millis(10));
+                        }
                     }
                 }
-            },
+            }
             Ok(ForkResult::Child) => {
                 let _ = setsid();
                 match unsafe { fork() } {

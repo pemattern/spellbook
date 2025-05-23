@@ -17,7 +17,7 @@ mod widgets;
 fn main() -> io::Result<()> {
     let start_time = Instant::now();
     let (sender, receiver) = mpsc::channel();
-    Watcher::new(sender.clone());
+    Watcher::run(sender.clone());
     EventReader::listen(sender);
     let app_result = Launcher::new(receiver).run(start_time);
     ratatui::restore();
