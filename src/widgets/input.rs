@@ -5,14 +5,14 @@ use ratatui::{
     widgets::{Paragraph, StatefulWidget, Widget},
 };
 
-use crate::config::InputConfig;
+use crate::config::Config;
 
 pub struct Input<'a> {
-    config: &'a InputConfig,
+    config: &'a Config,
 }
 
 impl<'a> Input<'a> {
-    pub fn new(config: &'a InputConfig) -> Self {
+    pub fn new(config: &'a Config) -> Self {
         Self { config }
     }
 }
@@ -22,18 +22,22 @@ impl StatefulWidget for Input<'_> {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [icon_area, input_area] =
             Layout::horizontal([Constraint::Length(4), Constraint::Min(1)]).areas(area);
-        let icon = Paragraph::new(" ").style(Style::new().bg(Color::Black));
+        let (fg_color, bg_color) = match self.config.color_mode {
+            crate::config::ColorMode::Light => (Color::Black, Color::White),
+            crate::config::ColorMode::Dark => (Color::White, Color::Black),
+        };
+        let icon = Paragraph::new(" ").style(Style::new().fg(fg_color).bg(bg_color));
         // TODO: Magic number
         state.width = (area.width - 4) as usize;
         let input_text = if state.filter.is_empty() {
-            Paragraph::new(self.config.placeholder.as_str())
+            Paragraph::new(self.config.input.placeholder.as_str())
                 .style(Style::new().fg(Color::DarkGray).italic())
         } else {
             let len = state.filter.len().min(state.width + state.overflow);
             let filter_text_to_display = &state.filter[state.overflow..len];
-            Paragraph::new(filter_text_to_display).style(Style::new().fg(Color::White))
+            Paragraph::new(filter_text_to_display).style(Style::new().fg(fg_color))
         }
-        .bg(Color::Black);
+        .bg(bg_color);
         Widget::render(icon, icon_area, buf);
         Widget::render(input_text, input_area, buf);
     }

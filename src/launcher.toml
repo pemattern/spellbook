@@ -4,6 +4,8 @@
 # [counter]
 # enable = true
 
+# color_mode = "light"
+
 [border]
 enable_border = false
 divider_character = ' '

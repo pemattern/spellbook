@@ -9,17 +9,17 @@ use ratatui::{
     },
 };
 
-use crate::{application::Application, config::ApplicationListConfig};
+use crate::{application::Application, config::Config};
 
 use super::input::InputState;
 
 pub struct ApplicationList<'a> {
-    config: &'a ApplicationListConfig,
+    config: &'a Config,
     filter: &'a str,
 }
 
 impl<'a> ApplicationList<'a> {
-    pub fn new(config: &'a ApplicationListConfig, input: &'a InputState) -> Self {
+    pub fn new(config: &'a Config, input: &'a InputState) -> Self {
         Self {
             config,
             filter: &input.filter,
@@ -36,16 +36,27 @@ impl StatefulWidget for ApplicationList<'_> {
         let mut highlighted_applications = Vec::new();
         for application in &state.filtered_applications {
             let mut highlight_spans = vec![Span::from(" ")];
-            if self.config.display_icons {
+            if self.config.application_list.display_icons {
                 highlight_spans.push(application.get_icon());
             }
-            highlight_spans.append(&mut application.get_highlighted_name(self.filter));
+            highlight_spans.append(
+                &mut application.get_highlighted_name(self.filter, &self.config.color_mode),
+            );
             highlighted_applications.push(Line::from(highlight_spans));
         }
 
+        let (fg_color, bg_color, highlight_color) = match self.config.color_mode {
+            crate::config::ColorMode::Light => (Color::Black, Color::Gray, Color::White),
+            crate::config::ColorMode::Dark => (Color::White, Color::Reset, Color::Black),
+        };
         let list = List::new(highlighted_applications)
-            .style(Style::new().fg(Color::White))
-            .highlight_style(Style::new().fg(Color::Cyan).bg(Color::Black).not_reversed())
+            .style(Style::new().fg(fg_color).bg(bg_color))
+            .highlight_style(
+                Style::new()
+                    .fg(Color::Cyan)
+                    .bg(highlight_color)
+                    .not_reversed(),
+            )
             .direction(ListDirection::TopToBottom);
 
         if state.list.selected().is_none() {
@@ -61,7 +72,7 @@ impl StatefulWidget for ApplicationList<'_> {
             .end_symbol(None)
             .track_symbol(None)
             .thumb_symbol("┃")
-            .style(Style::new().fg(Color::White));
+            .style(Style::new().fg(fg_color));
         let scrollable_range =
             (state.filtered_applications.len() as i16 - area.height as i16).max(0);
         let mut scrollbar_state = state

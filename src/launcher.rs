@@ -1,15 +1,15 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use nix::{
-    sys::wait::{waitpid, WaitPidFlag, WaitStatus},
-    unistd::{execvp, fork, setsid, ForkResult},
+    sys::wait::{WaitPidFlag, WaitStatus, waitpid},
+    unistd::{ForkResult, execvp, fork, setsid},
 };
 use ratatui::{
+    Frame,
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Position, Rect},
     style::{Color, Style, Stylize},
     symbols,
     widgets::{Block, Borders, StatefulWidget, Widget},
-    Frame,
 };
 use std::{
     io::{self},
@@ -20,7 +20,7 @@ use std::{
 };
 
 use crate::{
-    config::Config,
+    config::{ColorMode, Config},
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -179,6 +179,9 @@ impl Launcher {
 
 impl Widget for &mut Launcher {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        if matches!(self.config.color_mode, ColorMode::Light) {
+            buf.set_style(area, Style::new().bg(Color::Gray));
+        }
         let margin = Margin::new(self.config.border.margin.x, self.config.border.margin.y);
         let padded_area = area.inner(margin);
         let mut main_block = Block::new();
@@ -186,40 +189,49 @@ impl Widget for &mut Launcher {
             main_block = main_block.borders(Borders::ALL);
         }
 
-        let [input_and_counter_area, divider_area, list_area, debug_divider_area, debug_area] =
-            Layout::vertical([
-                Constraint::Length(3),
-                Constraint::Length(1),
-                Constraint::Min(1),
-                Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
-                Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
-            ])
-            .areas(main_block.inner(padded_area));
+        let [
+            input_and_counter_area,
+            divider_area,
+            list_area,
+            debug_divider_area,
+            debug_area,
+        ] = Layout::vertical([
+            Constraint::Length(3),
+            Constraint::Length(1),
+            Constraint::Min(1),
+            Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
+            Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
+        ])
+        .areas(main_block.inner(padded_area));
         Widget::render(main_block, padded_area, buf);
 
+        let fg_color = match self.config.color_mode {
+            ColorMode::Light => Color::White,
+            ColorMode::Dark => Color::Black,
+        };
         let input_block = Block::new()
             .borders(Borders::all())
             .border_set(symbols::border::PROPORTIONAL_WIDE)
-            .border_style(Style::new().fg(Color::Black));
+            .border_style(Style::new().fg(fg_color));
         let [input_area, counter_area] =
             Layout::horizontal([Constraint::Min(1), Constraint::Length(9)])
                 .areas(input_block.inner(input_and_counter_area));
         Widget::render(input_block, input_and_counter_area, buf);
 
         StatefulWidget::render(
-            Input::new(&self.config.input),
+            Input::new(&self.config),
             input_area,
             buf,
             &mut self.state.input,
         );
         Widget::render(Divider::new(&self.config.border), divider_area, buf);
         Widget::render(
-            Counter::new(&self.config.counter, &self.state.application_list),
+            Counter::new(&self.config, &self.state.application_list),
             counter_area,
             buf,
         );
         StatefulWidget::render(
-            ApplicationList::new(&self.config.application_list, &self.state.input),
+            ApplicationList::new(&self.config, &self.state.input),
             list_area,
             buf,
             &mut self.state.application_list,

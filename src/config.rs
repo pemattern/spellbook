@@ -11,6 +11,7 @@ pub struct Config {
     pub border: BorderConfig,
     pub application_list: ApplicationListConfig,
     pub debug: DebugConfig,
+    pub color_mode: ColorMode,
 }
 
 impl Config {
@@ -120,15 +121,17 @@ impl Default for ApplicationListConfig {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct DebugConfig {
     pub enable: bool,
 }
 
-impl Default for DebugConfig {
-    fn default() -> Self {
-        Self { enable: false }
-    }
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "snake_case")]
+pub enum ColorMode {
+    Light,
+    #[default]
+    Dark,
 }

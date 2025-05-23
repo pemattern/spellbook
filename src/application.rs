@@ -1,4 +1,7 @@
-use crate::icon::{Icon, APPLICATION_ICON_MAP, CATEGORY_ICON_MAP};
+use crate::{
+    config::ColorMode,
+    icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
+};
 use ini::Ini;
 use ratatui::{
     style::{Color, Style, Stylize},
@@ -27,12 +30,8 @@ impl Application {
         };
         let section = ini.section(Some("Desktop Entry"));
         if let Some(section) = section {
-            let Some(name) = section.get("Name") else {
-                return None;
-            };
-            let Some(exec) = section.get("Exec") else {
-                return None;
-            };
+            let name = section.get("Name")?;
+            let exec = section.get("Exec")?;
             let terminal = match section.get("Terminal") {
                 Some("True") | Some("true") => true,
                 Some("False") | Some("false") => false,
@@ -56,9 +55,7 @@ impl Application {
                 .filter(|e| !e.starts_with('%'))
                 .map(|e| e.to_string())
                 .collect::<Vec<String>>();
-            let Some(filename_ref) = exec_split.first() else {
-                return None;
-            };
+            let filename_ref = exec_split.first()?;
             let filename = CString::new(filename_ref.to_string()).unwrap();
             let mut args = Vec::new();
             if exec_split.len() > 1 {
@@ -113,7 +110,7 @@ impl Application {
         )
     }
 
-    pub fn get_highlighted_name(&self, filter: &str) -> Vec<Span> {
+    pub fn get_highlighted_name(&self, filter: &str, color_mode: &ColorMode) -> Vec<Span> {
         let mut spans = Vec::new();
         let name = &self.name;
         let indices = name
@@ -121,7 +118,7 @@ impl Application {
             .match_indices(&filter.to_lowercase())
             .map(|(index, _)| index)
             .collect::<Vec<usize>>();
-        if filter.len() == 0 || indices.len() == 0 {
+        if filter.is_empty() || indices.is_empty() {
             spans.push(Span::raw(name));
             return spans;
         }
@@ -129,17 +126,20 @@ impl Application {
             spans.push(Span::raw(&name[..indices[0]]));
         }
         let mut iteration = 0;
+        let bg_color = match color_mode {
+            ColorMode::Light => Color::White,
+            ColorMode::Dark => Color::DarkGray,
+        };
         for index in indices.iter() {
             let start = *index;
             let end = start + filter.len();
-            spans.push(Span::raw(&name[start..end]).style(Style::new().bold().bg(Color::DarkGray)));
-            let next_index: usize;
-            if iteration < indices.len() - 1 {
+            spans.push(Span::raw(&name[start..end]).style(Style::new().bold().bg(bg_color)));
+            let next_index: usize = if iteration < indices.len() - 1 {
                 iteration += 1;
-                next_index = indices[iteration];
+                indices[iteration]
             } else {
-                next_index = name.len();
-            }
+                name.len()
+            };
             spans.push(Span::raw(&name[end..next_index]));
         }
         spans
