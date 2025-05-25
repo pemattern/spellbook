@@ -10,7 +10,7 @@ pub struct Config {
     pub counter: CounterConfig,
     pub border: BorderConfig,
     pub application_list: ApplicationListConfig,
-    pub debug: DebugConfig,
+    pub info: InfoConfig,
     pub color_mode: ColorMode,
 }
 
@@ -28,18 +28,6 @@ impl Config {
         format!("{}{}", home, Self::PATH)
     }
 }
-
-// impl Default for Config {
-//     fn default() -> Self {
-//         Config {
-//             input: InputConfig::default(),
-//             counter: CounterConfig::default(),
-//             border: BorderConfig::default(),
-//             application_list: ApplicationListConfig::default(),
-//             debug: DebugConfig::default(),
-//         }
-//     }
-// }
 
 #[derive(Debug, Deserialize)]
 #[serde(default)]
@@ -124,7 +112,7 @@ impl Default for ApplicationListConfig {
 #[derive(Debug, Default, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
-pub struct DebugConfig {
+pub struct InfoConfig {
     pub enable: bool,
 }
 

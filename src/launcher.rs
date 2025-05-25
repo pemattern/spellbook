@@ -25,8 +25,7 @@ use crate::{
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::Counter,
-        debug::{Debug, DebugState},
-        divider::Divider,
+        info::Info,
         input::{Input, InputState},
     },
 };
@@ -58,14 +57,10 @@ impl Launcher {
 
     fn reload_config(&mut self) {
         self.config = Config::load();
-        self.state.debug.log("Reloaded config".to_string());
     }
 
     pub fn run(&mut self, start_time: Instant) -> io::Result<()> {
         let mut terminal = ratatui::init();
-        self.state
-            .debug
-            .log(format!("Startup time: {:.2?}", start_time.elapsed()));
         while let RunMode::Running = &self.mode {
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_messages()?;
@@ -191,18 +186,10 @@ impl Widget for &mut Launcher {
             main_block = main_block.borders(Borders::ALL);
         }
 
-        let [
-            input_and_counter_area,
-            divider_area,
-            list_area,
-            debug_divider_area,
-            debug_area,
-        ] = Layout::vertical([
+        let [input_and_counter_area, list_area, info_area] = Layout::vertical([
             Constraint::Length(3),
-            Constraint::Length(1),
             Constraint::Min(1),
-            Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
-            Constraint::Length(if self.config.debug.enable { 1 } else { 0 }),
+            Constraint::Length(if self.config.info.enable { 3 } else { 0 }),
         ])
         .areas(main_block.inner(padded_area));
         Widget::render(main_block, padded_area, buf);
@@ -226,7 +213,6 @@ impl Widget for &mut Launcher {
             buf,
             &mut self.state.input,
         );
-        Widget::render(Divider::new(&self.config.border), divider_area, buf);
         Widget::render(
             Counter::new(&self.config, &self.state.application_list),
             counter_area,
@@ -238,8 +224,16 @@ impl Widget for &mut Launcher {
             buf,
             &mut self.state.application_list,
         );
-        Widget::render(Divider::new(&self.config.border), debug_divider_area, buf);
-        Widget::render(Debug::new(&self.state), debug_area, buf);
+        let info_block = Block::new()
+            .borders(Borders::all())
+            .border_set(symbols::border::PROPORTIONAL_WIDE)
+            .border_style(Style::new().fg(fg_color));
+        Widget::render(info_block, info_area, buf);
+        Widget::render(
+            Info::new(&self.config, self.state.application_list.selected()),
+            info_area.inner(Margin::new(1, 1)),
+            buf,
+        );
     }
 }
 
@@ -247,5 +241,4 @@ impl Widget for &mut Launcher {
 pub struct LauncherState {
     pub input: InputState,
     pub application_list: ApplicationListState,
-    pub debug: DebugState,
 }

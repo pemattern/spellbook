@@ -9,9 +9,10 @@
 [border]
 enable_border = false
 divider_character = ' '
+margin = { x = 1, y = 0 }
 
 # [application_list]
 # display_icons = true
 
-# [debug]
-# enable = false
+[info]
+enable = true
