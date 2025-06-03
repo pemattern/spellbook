@@ -2,7 +2,7 @@ use std::{sync::mpsc, thread};
 
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify};
 
-use crate::{config::Config, logger::Logger, message::Message};
+use crate::{config::Config, message::Message};
 
 #[derive(Debug)]
 pub struct Watcher;
@@ -26,7 +26,6 @@ impl Watcher {
                         _ => {}
                     }
                 }
-                // Logger::log(format!("{:#?}", events).as_str());
             }
         });
     }

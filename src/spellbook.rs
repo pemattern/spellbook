@@ -16,7 +16,7 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 use crate::{
@@ -31,11 +31,11 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Launcher {
+pub struct Spellbook {
     mode: RunMode,
     receiver: mpsc::Receiver<Message>,
     config: Config,
-    state: LauncherState,
+    state: SpellbookState,
 }
 
 #[derive(Debug, Default)]
@@ -45,13 +45,13 @@ enum RunMode {
     Exit,
 }
 
-impl Launcher {
+impl Spellbook {
     pub fn new(receiver: mpsc::Receiver<Message>) -> Self {
         Self {
             mode: RunMode::Running,
             receiver,
             config: Config::load(),
-            state: LauncherState::default(),
+            state: SpellbookState::default(),
         }
     }
 
@@ -59,7 +59,7 @@ impl Launcher {
         self.config = Config::load();
     }
 
-    pub fn run(&mut self, start_time: Instant) -> io::Result<()> {
+    pub fn run(&mut self) -> io::Result<()> {
         let mut terminal = ratatui::init();
         while let RunMode::Running = &self.mode {
             terminal.draw(|frame| self.draw(frame))?;
@@ -174,7 +174,7 @@ impl Launcher {
     }
 }
 
-impl Widget for &mut Launcher {
+impl Widget for &mut Spellbook {
     fn render(self, area: Rect, buf: &mut Buffer) {
         if matches!(self.config.color_mode, ColorMode::Light) {
             buf.set_style(area, Style::new().bg(Color::Gray));
@@ -238,7 +238,7 @@ impl Widget for &mut Launcher {
 }
 
 #[derive(Debug, Default)]
-pub struct LauncherState {
+pub struct SpellbookState {
     pub input: InputState,
     pub application_list: ApplicationListState,
 }

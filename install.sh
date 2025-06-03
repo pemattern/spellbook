@@ -1,2 +1,2 @@
 cargo build --release &&
-sudo cp target/release/launcher /usr/local/bin
+  sudo cp target/release/spellbook /usr/local/bin
