@@ -1,12 +1,12 @@
 use std::{
-    sync::{mpsc, Arc, Mutex},
+    sync::{Arc, Mutex, mpsc},
     thread,
     time::Duration,
 };
 
 use crossterm::event::{self, Event, KeyEventKind};
 
-use crate::{message::Message, RunMode, SharedState};
+use crate::{RunMode, SharedState, message::Message};
 
 pub struct EventReader;
 
@@ -32,8 +32,8 @@ impl EventReader {
                     }
                 }
             }
-            let lock = shared_state.lock().unwrap();
-            lock.logger.log("Exiting EventRead thread.");
+            // let lock = shared_state.lock().unwrap();
+            // lock.logger.log("Exiting EventRead thread.");
         });
     }
 }

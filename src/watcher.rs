@@ -26,7 +26,7 @@ impl Watcher {
                         _ => {}
                     }
                 }
-                Logger::log(format!("{:#?}", events).as_str());
+                // Logger::log(format!("{:#?}", events).as_str());
             }
         });
     }

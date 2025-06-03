@@ -15,7 +15,7 @@ pub struct Config {
 }
 
 impl Config {
-    const PATH: &str = "/Dev/launcher/src/launcher.toml";
+    const PATH: &str = "/Dev/spellbook/spellbook.toml";
 
     pub fn load() -> Self {
         let path = Self::get_path();
