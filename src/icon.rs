@@ -16,12 +16,15 @@ impl Icon {
 }
 
 pub static APPLICATION_ICON_MAP: phf::Map<&'static str, Icon> = phf_map! {
+    "Bluetooth" => Icon::new("󰂯", Color::Blue),
     "Blender" => Icon::new("󰂫", Color::Yellow),
     "Chrome" => Icon::new("", Color::Red),
     "Chromium" => Icon::new("", Color::Cyan),
     "Code" => Icon::new("󰨞", Color::Blue),
     "Edge" => Icon::new("󰇩", Color::Cyan),
     "Firefox" => Icon::new("󰈹", Color::LightRed),
+    "GNU Image Manipulation Program" => Icon::new("", Color::Gray),
+    "Godot Engine" => Icon::new("", Color::Blue),
     "LibreOffice" => Icon::new("", Color::Gray),
     "LibreOffice Base" => Icon::new("", Color::Magenta),
     "LibreOffice Calc" => Icon::new("", Color::Green),
