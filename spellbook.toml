@@ -11,8 +11,8 @@ enable_border = false
 divider_character = ' '
 margin = { x = 1, y = 0 }
 
-# [application_list]
-# display_icons = true
+[application_list]
+# display_icons = false
 
 [info]
-enable = true
+# enable = true

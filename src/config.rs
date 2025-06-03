@@ -109,11 +109,17 @@ impl Default for ApplicationListConfig {
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct InfoConfig {
     pub enable: bool,
+}
+
+impl Default for InfoConfig {
+    fn default() -> Self {
+        Self { enable: true }
+    }
 }
 
 #[derive(Debug, Default, Deserialize)]

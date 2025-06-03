@@ -16,11 +16,19 @@ impl Icon {
 }
 
 pub static APPLICATION_ICON_MAP: phf::Map<&'static str, Icon> = phf_map! {
+    "Blender" => Icon::new("󰂫", Color::Yellow),
     "Chrome" => Icon::new("", Color::Red),
     "Chromium" => Icon::new("", Color::Cyan),
     "Code" => Icon::new("󰨞", Color::Blue),
     "Edge" => Icon::new("󰇩", Color::Cyan),
     "Firefox" => Icon::new("󰈹", Color::LightRed),
+    "LibreOffice" => Icon::new("", Color::Gray),
+    "LibreOffice Base" => Icon::new("", Color::Magenta),
+    "LibreOffice Calc" => Icon::new("", Color::Green),
+    "LibreOffice Draw" => Icon::new("", Color::Yellow),
+    "LibreOffice Impress" => Icon::new("", Color::LightRed),
+    "LibreOffice Math" => Icon::new("", Color::Red),
+    "LibreOffice Writer" => Icon::new("", Color::Blue),
     "Neovim" => Icon::new("", Color::Green),
     "Opera" => Icon::new("", Color::Red),
     "Steam" => Icon::new("󰓓", Color::Cyan),
