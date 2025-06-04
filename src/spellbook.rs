@@ -21,6 +21,7 @@ use std::{
 
 use crate::{
     config::{ColorMode, Config},
+    db::Db,
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -36,6 +37,7 @@ pub struct Spellbook {
     receiver: mpsc::Receiver<Message>,
     config: Config,
     state: SpellbookState,
+    db: Vec<DbEntry>,
 }
 
 #[derive(Debug, Default)]
@@ -47,11 +49,16 @@ enum RunMode {
 
 impl Spellbook {
     pub fn new(receiver: mpsc::Receiver<Message>) -> Self {
+        let mode = RunMode::Running;
+        let config = Config::load();
+        let state = SpellbookState::default();
+        let db = Db::load(&state.application_list.applications);
         Self {
-            mode: RunMode::Running,
+            mode,
             receiver,
-            config: Config::load(),
-            state: SpellbookState::default(),
+            config,
+            state,
+            db,
         }
     }
 
