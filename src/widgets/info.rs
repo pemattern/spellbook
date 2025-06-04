@@ -27,10 +27,12 @@ impl<'a> Widget for Info<'a> {
             crate::config::ColorMode::Light => (Color::Black, Color::White),
             crate::config::ColorMode::Dark => (Color::White, Color::Black),
         };
-        let message = if self.application.is_some() {
-            self.application.unwrap().name.as_str()
-        } else {
-            ""
+        let message = match self.application {
+            Some(application) => match &application.comment {
+                Some(comment) => comment.as_str(),
+                None => "",
+            },
+            None => "",
         };
         let paragraph = Paragraph::new(message).style(Style::new().fg(fg_color).bg(bg_color));
         Widget::render(paragraph, area, buf);

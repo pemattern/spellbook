@@ -15,6 +15,7 @@ pub struct Application {
     pub filename: CString,
     pub args: Vec<CString>,
     pub terminal: bool,
+    pub comment: Option<String>,
     pub icon: Icon,
 }
 
@@ -49,6 +50,10 @@ impl Application {
                     .collect::<Vec<String>>(),
                 None => Vec::new(),
             };
+            let comment = match section.get("Comment") {
+                Some(comment) => Some(comment.to_string()),
+                None => None,
+            };
             let icon = Self::set_icon(name, categories).clone();
             let exec_split = exec
                 .split_whitespace()
@@ -69,6 +74,7 @@ impl Application {
                 filename,
                 args,
                 terminal,
+                comment,
                 icon,
             });
         }
