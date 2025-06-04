@@ -4,6 +4,7 @@ use watcher::Watcher;
 
 mod application;
 mod config;
+mod db;
 mod icon;
 mod input_reader;
 mod message;

@@ -3,8 +3,7 @@ use std::{env, fs};
 use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct Config {
     pub input: InputConfig,
     pub counter: CounterConfig,
@@ -30,8 +29,7 @@ impl Config {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct InputConfig {
     pub placeholder: String,
 }
@@ -45,8 +43,7 @@ impl Default for InputConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct CounterConfig {
     pub enable: bool,
     pub bold: bool,
@@ -62,8 +59,7 @@ impl Default for CounterConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct BorderConfig {
     pub margin: MarginConfig,
     pub enable_border: bool,
@@ -81,8 +77,7 @@ impl Default for BorderConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct MarginConfig {
     pub x: u16,
     pub y: u16,
@@ -95,8 +90,7 @@ impl Default for MarginConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct ApplicationListConfig {
     pub display_icons: bool,
 }
@@ -110,8 +104,7 @@ impl Default for ApplicationListConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct InfoConfig {
     pub enable: bool,
 }
