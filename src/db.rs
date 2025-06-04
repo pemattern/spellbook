@@ -11,22 +11,22 @@ pub struct Db {
 }
 
 impl Db {
-    const PATH: &str = "/Dev/spellbook/spells.toml";
+    const PATH: &str = "/.config/spellbook/";
+    const FILENAME: &str = "spells.toml";
 
-    pub fn load(applications: &Vec<Application>) -> Self {
-        let path = Self::get_path();
-        match std::fs::read_to_string(&path) {
-            Ok(toml) => toml::from_str::<Self>(&toml).unwrap(),
-            Err(_) => {
-                let db = Self::default_db(applications);
-                db.save();
-                db
-            }
-        }
+    pub fn load(applications: &[Application]) -> Self {
+        let path = Self::get_full_path();
+        let Ok(toml) = std::fs::read_to_string(&path) else {
+            return Self::save_default_db(applications);
+        };
+        let Ok(db) = toml::from_str::<Self>(&toml) else {
+            return Self::save_default_db(applications);
+        };
+        db
     }
 
     pub fn save(&self) {
-        let path = Self::get_path();
+        let path = Self::get_full_path();
         let toml = match toml::to_string_pretty(self) {
             Ok(toml) => toml,
             Err(err) => {
@@ -34,6 +34,7 @@ impl Db {
                 panic!();
             }
         };
+        std::fs::create_dir_all(Self::get_path()).unwrap();
         let mut file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
@@ -49,12 +50,18 @@ impl Db {
         format!("{}{}", home, Self::PATH)
     }
 
-    fn default_db(applications: &Vec<Application>) -> Self {
+    fn get_full_path() -> String {
+        format!("{}{}", Self::get_path(), Self::FILENAME)
+    }
+
+    fn save_default_db(applications: &[Application]) -> Self {
         let mut entries = Vec::new();
         applications
             .iter()
             .for_each(|a| entries.push(DbEntry::new(&a.name)));
-        Db { entries }
+        let db = Db { entries };
+        db.save();
+        db
     }
 }
 

@@ -34,17 +34,15 @@ impl Watcher {
 impl Watcher {
     pub fn refresh_inotify() -> Inotify {
         let inotify = Inotify::init(InitFlags::all()).unwrap();
-        inotify
-            .add_watch(
-                Config::get_path().as_str(),
-                AddWatchFlags::IN_ATTRIB
-                    | AddWatchFlags::IN_CREATE
-                    | AddWatchFlags::IN_MODIFY
-                    | AddWatchFlags::IN_DELETE_SELF
-                    | AddWatchFlags::IN_MOVE_SELF
-                    | AddWatchFlags::IN_IGNORED,
-            )
-            .unwrap();
+        let _ = inotify.add_watch(
+            Config::get_full_path().as_str(),
+            AddWatchFlags::IN_ATTRIB
+                | AddWatchFlags::IN_CREATE
+                | AddWatchFlags::IN_MODIFY
+                | AddWatchFlags::IN_DELETE_SELF
+                | AddWatchFlags::IN_MOVE_SELF
+                | AddWatchFlags::IN_IGNORED,
+        );
         inotify
     }
 }
