@@ -63,10 +63,15 @@ impl StatefulWidget for ApplicationList<'_> {
             *state.list.selected_mut() = Some(0);
         }
 
-        if list.len() < area.height as usize {
+        if list.len() <= area.height.into() {
             *state.list.offset_mut() = 0;
         }
 
+        while list.len() > area.height.into()
+            && list.len() - state.list.offset() < area.height.into()
+        {
+            *state.list.offset_mut() -= 1;
+        }
         let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
             .begin_symbol(None)
             .end_symbol(None)
@@ -105,9 +110,7 @@ impl ApplicationListState {
     }
 
     pub fn selected(&self) -> Option<&Application> {
-        let Some(i) = self.list.selected() else {
-            return None;
-        };
+        let i = self.list.selected()?;
         Some(&self.filtered_applications[i])
     }
 
