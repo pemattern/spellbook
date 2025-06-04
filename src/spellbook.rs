@@ -37,7 +37,7 @@ pub struct Spellbook {
     receiver: mpsc::Receiver<Message>,
     config: Config,
     state: SpellbookState,
-    db: Vec<DbEntry>,
+    db: Db,
 }
 
 #[derive(Debug, Default)]
@@ -150,6 +150,18 @@ impl Spellbook {
         }
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => {
+                match self
+                    .db
+                    .entries
+                    .iter_mut()
+                    .find(|entry| entry.name == application.name)
+                {
+                    Some(entry) => {
+                        entry.launch_count += 1;
+                        self.db.save();
+                    }
+                    None => {}
+                }
                 if keep_alive {
                     return;
                 }
