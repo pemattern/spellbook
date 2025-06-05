@@ -1,5 +1,6 @@
 use crate::{
     config::ColorMode,
+    db::Db,
     icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
 };
 use ini::Ini;
@@ -50,10 +51,7 @@ impl Application {
                     .collect::<Vec<String>>(),
                 None => Vec::new(),
             };
-            let comment = match section.get("Comment") {
-                Some(comment) => Some(comment.to_string()),
-                None => None,
-            };
+            let comment = section.get("Comment").map(|comment| comment.to_string());
             let icon = Self::set_icon(name, categories).clone();
             let exec_split = exec
                 .split_whitespace()
@@ -105,7 +103,6 @@ impl Application {
                 }
             }
         }
-        applications.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
         applications
     }
 

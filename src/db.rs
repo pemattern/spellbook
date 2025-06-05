@@ -19,9 +19,20 @@ impl Db {
         let Ok(toml) = std::fs::read_to_string(&path) else {
             return Self::save_default_db(applications);
         };
-        let Ok(db) = toml::from_str::<Self>(&toml) else {
+        let Ok(mut db) = toml::from_str::<Self>(&toml) else {
             return Self::save_default_db(applications);
         };
+        for application in applications {
+            if !db
+                .entries
+                .iter()
+                .any(|entry| entry.name == application.name)
+            {
+                db.entries.push(DbEntry::new(&application.name));
+            }
+        }
+        db.entries.sort_by(|a, b| a.name.cmp(&b.name));
+        db.save();
         db
     }
 
