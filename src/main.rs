@@ -1,12 +1,12 @@
-use input_reader::EventReader;
+use event_reader::EventReader;
 use spellbook::Spellbook;
 use watcher::Watcher;
 
 mod application;
 mod config;
 mod db;
+mod event_reader;
 mod icon;
-mod input_reader;
 mod message;
 mod spellbook;
 mod watcher;

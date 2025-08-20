@@ -1,6 +1,5 @@
 use crate::{
     config::ColorMode,
-    db::Db,
     icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
 };
 use ini::Ini;
@@ -106,14 +105,14 @@ impl Application {
         applications
     }
 
-    pub fn get_icon(&self) -> Span {
+    pub fn get_icon(&self) -> Span<'_> {
         Span::styled(
             format!("{}  ", self.icon.str),
             Style::new().fg(self.icon.color),
         )
     }
 
-    pub fn get_highlighted_name(&self, filter: &str, color_mode: &ColorMode) -> Vec<Span> {
+    pub fn get_highlighted_name(&self, filter: &str, color_mode: &ColorMode) -> Vec<Span<'_>> {
         let mut spans = Vec::new();
         let name = &self.name;
         let indices = name
