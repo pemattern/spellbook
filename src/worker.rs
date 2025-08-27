@@ -3,12 +3,12 @@ use std::{sync::mpsc, thread};
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify};
 
 use crate::{config::Config, message::Message};
+use crossterm::event::{self, Event, KeyEventKind};
 
-#[derive(Debug)]
-pub struct Watcher;
+pub struct FileWatcher;
 
-impl Watcher {
-    pub fn run(sender: mpsc::Sender<Message>) {
+impl FileWatcher {
+    pub fn spawn(sender: mpsc::Sender<Message>) {
         thread::spawn(move || {
             let mut inotify = Self::refresh_inotify();
             loop {
@@ -31,7 +31,7 @@ impl Watcher {
     }
 }
 
-impl Watcher {
+impl FileWatcher {
     pub fn refresh_inotify() -> Inotify {
         let inotify = Inotify::init(InitFlags::all()).unwrap();
         let _ = inotify.add_watch(
@@ -44,5 +44,27 @@ impl Watcher {
                 | AddWatchFlags::IN_IGNORED,
         );
         inotify
+    }
+}
+
+pub struct EventWatcher;
+
+impl EventWatcher {
+    pub fn spawn(sender: mpsc::Sender<Message>) {
+        thread::spawn(move || {
+            loop {
+                match event::read().unwrap() {
+                    Event::Key(key_event) => {
+                        if key_event.kind == KeyEventKind::Press {
+                            sender.send(Message::Input(key_event)).unwrap();
+                        }
+                    }
+
+                    Event::Resize(_, _) => sender.send(Message::Redraw).unwrap(),
+
+                    _ => continue,
+                }
+            }
+        });
     }
 }

@@ -72,6 +72,7 @@ impl Spellbook {
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_messages()?;
         }
+        ratatui::restore();
         Ok(())
     }
 
@@ -150,17 +151,14 @@ impl Spellbook {
         }
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => {
-                match self
+                if let Some(entry) = self
                     .db
                     .entries
                     .iter_mut()
                     .find(|entry| entry.name == application.name)
                 {
-                    Some(entry) => {
-                        entry.launch_count += 1;
-                        self.db.save();
-                    }
-                    None => {}
+                    entry.launch_count += 1;
+                    self.db.save();
                 }
                 if keep_alive {
                     return;
