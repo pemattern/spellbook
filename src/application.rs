@@ -1,5 +1,6 @@
 use crate::{
     config::ColorMode,
+    db::DbEntry,
     icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
 };
 use ini::Ini;
@@ -17,10 +18,12 @@ pub struct Application {
     pub terminal: bool,
     pub comment: Option<String>,
     pub icon: Icon,
+    pub launch_count: u32,
+    pub blacklisted: bool,
 }
 
 impl Application {
-    pub fn from_file(path: &str) -> Option<Self> {
+    pub fn from_file(path: &str, db_entry: Option<&DbEntry>) -> Option<Self> {
         let content = match fs::read_to_string(path) {
             Ok(content) => content,
             Err(_) => return None,

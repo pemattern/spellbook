@@ -119,12 +119,22 @@ impl Default for MarginConfig {
 #[serde(default, deny_unknown_fields)]
 pub struct ApplicationListConfig {
     pub display_icons: bool,
+    pub order: ApplicationListOrder,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "snake_case")]
+pub enum ApplicationListOrder {
+    Alphabetical,
+    #[default]
+    MostUsed,
 }
 
 impl Default for ApplicationListConfig {
     fn default() -> Self {
         Self {
             display_icons: true,
+            order: ApplicationListOrder::default(),
         }
     }
 }
