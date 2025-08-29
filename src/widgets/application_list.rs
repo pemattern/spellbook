@@ -9,7 +9,7 @@ use ratatui::{
     },
 };
 
-use crate::{application::Application, config::Config};
+use crate::{application::Application, config::Config, db::Db};
 
 use super::input::InputState;
 
@@ -100,13 +100,12 @@ pub struct ApplicationListState {
 
 impl ApplicationListState {
     pub fn update(&mut self, filter: &str) {
-        let filtered_applications = self
+        self.filtered_applications = self
             .applications
             .clone()
             .into_iter()
             .filter(|entry| entry.name.to_lowercase().contains(&filter.to_lowercase()))
             .collect::<Vec<Application>>();
-        self.filtered_applications = filtered_applications;
     }
 
     pub fn selected(&self) -> Option<&Application> {
@@ -125,7 +124,8 @@ impl ApplicationListState {
 
 impl Default for ApplicationListState {
     fn default() -> Self {
-        let applications = Application::find_all();
+        let db = Db::load();
+        let applications = Application::find_all(db);
         Self {
             filtered_applications: applications.clone(),
             applications,

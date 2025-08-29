@@ -37,7 +37,6 @@ pub struct Spellbook {
     receiver: mpsc::Receiver<Message>,
     config: Config,
     state: SpellbookState,
-    db: Db,
 }
 
 #[derive(Debug, Default)]
@@ -52,13 +51,11 @@ impl Spellbook {
         let mode = RunMode::Running;
         let config = Config::load();
         let state = SpellbookState::default();
-        let db = Db::load(&state.application_list.applications);
         Self {
             mode,
             receiver,
             config,
             state,
-            db,
         }
     }
 
@@ -151,15 +148,15 @@ impl Spellbook {
         }
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => {
-                if let Some(entry) = self
-                    .db
-                    .entries
-                    .iter_mut()
-                    .find(|entry| entry.name == application.name)
-                {
-                    entry.launch_count += 1;
-                    self.db.save();
-                }
+                // if let Some(entry) = self
+                //     .db
+                //     .entries
+                //     .iter_mut()
+                //     .find(|entry| entry.name == application.name)
+                // {
+                //     entry.launch_count += 1;
+                //     self.db.save();
+                // }
                 if keep_alive {
                     return;
                 }

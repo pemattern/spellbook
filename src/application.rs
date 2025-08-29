@@ -1,6 +1,6 @@
 use crate::{
     config::ColorMode,
-    db::DbEntry,
+    db::{Db, DbEntry},
     icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
 };
 use ini::Ini;
@@ -8,7 +8,7 @@ use ratatui::{
     style::{Color, Style, Stylize},
     text::Span,
 };
-use std::{env, ffi::CString, fs, path::Path};
+use std::{env::home_dir, ffi::CString, fs, path::Path};
 
 #[derive(Clone, Debug)]
 pub struct Application {
@@ -18,12 +18,12 @@ pub struct Application {
     pub terminal: bool,
     pub comment: Option<String>,
     pub icon: Icon,
-    pub launch_count: u32,
+    pub launch_count: usize,
     pub blacklisted: bool,
 }
 
 impl Application {
-    pub fn from_file(path: &str, db_entry: Option<&DbEntry>) -> Option<Self> {
+    pub fn from_file(path: &str, db: &Db) -> Option<Self> {
         let content = match fs::read_to_string(path) {
             Ok(content) => content,
             Err(_) => return None,
@@ -69,6 +69,14 @@ impl Application {
                     .map(|a| CString::new(a.to_string()).unwrap())
                     .collect::<Vec<CString>>();
             }
+            let db_entry = db
+                .entries
+                .iter()
+                .find(|entry| entry.name == name)
+                .cloned()
+                .unwrap_or(DbEntry::new(name));
+            let launch_count = db_entry.launch_count;
+            let blacklisted = db_entry.blacklisted;
             return Some(Self {
                 name: name.to_string(),
                 filename,
@@ -76,17 +84,19 @@ impl Application {
                 terminal,
                 comment,
                 icon,
+                launch_count,
+                blacklisted,
             });
         }
         None
     }
 
-    pub fn find_all() -> Vec<Self> {
+    pub fn find_all(db: Db) -> Vec<Self> {
         let mut applications = Vec::new();
-        let home = env::var("HOME").expect("unable to read $HOME env");
+        let home = home_dir().unwrap();
         let dirs = vec![
-            "/usr/share/applications/".to_string(),
-            format!("{}/.local/share/applications/", home),
+            String::from("/usr/share/applications/"),
+            format!("{}/.local/share/applications/", home.display()),
         ];
         for dir in dirs {
             let path = Path::new(&dir);
@@ -97,7 +107,7 @@ impl Application {
                     if path.is_file()
                         && path.extension().and_then(|s| s.to_str()) == Some("desktop")
                     {
-                        match Application::from_file(path.to_str().unwrap()) {
+                        match Application::from_file(path.to_str().unwrap(), &db) {
                             Some(app) => applications.push(app),
                             None => continue,
                         }
@@ -105,6 +115,11 @@ impl Application {
                 }
             }
         }
+        applications.sort_by(|a, b| {
+            b.launch_count
+                .cmp(&a.launch_count)
+                .then(a.name.cmp(&b.name))
+        });
         applications
     }
 
