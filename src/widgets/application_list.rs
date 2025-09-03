@@ -9,7 +9,11 @@ use ratatui::{
     },
 };
 
-use crate::{application::Application, config::Config, db::Db};
+use crate::{
+    application::Application,
+    config::Config,
+    db::{Db, DbEntry},
+};
 
 use super::input::InputState;
 
@@ -120,12 +124,21 @@ impl ApplicationListState {
     pub fn select_next(&mut self) {
         self.list.select_next();
     }
+
+    pub fn save_db(&self) {
+        let entries = self
+            .applications
+            .iter()
+            .map(|entry| entry.db_entry.clone())
+            .collect::<Vec<DbEntry>>();
+        let db = Db { entries };
+        db.save_to_disk();
+    }
 }
 
 impl Default for ApplicationListState {
     fn default() -> Self {
-        let db = Db::load();
-        let applications = Application::find_all(db);
+        let applications = Application::find_all();
         Self {
             filtered_applications: applications.clone(),
             applications,

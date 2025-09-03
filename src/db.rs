@@ -1,4 +1,4 @@
-use std::env::home_dir;
+use std::{env::home_dir, io::Write};
 
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +23,22 @@ impl Db {
         db
     }
 
+    pub fn save_to_disk(&self) {
+        let Ok(toml) = toml::to_string_pretty(self) else {
+            return;
+        };
+        std::fs::create_dir_all(Self::get_path()).unwrap();
+        let path = Self::get_full_path();
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(path)
+            .unwrap();
+
+        file.write_all(toml.as_bytes()).unwrap();
+        file.flush().unwrap();
+    }
     fn get_path() -> String {
         let home = home_dir().unwrap();
         format!("{}{}", home.display(), Self::PATH)

@@ -21,7 +21,6 @@ use std::{
 
 use crate::{
     config::{ColorMode, Config},
-    db::Db,
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -144,19 +143,12 @@ impl Spellbook {
         if application.terminal {
             ratatui::restore();
             let _ = execvp(&application.filename, application.args.as_slice());
+            self.state.application_list.save_db();
             return;
         }
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => {
-                // if let Some(entry) = self
-                //     .db
-                //     .entries
-                //     .iter_mut()
-                //     .find(|entry| entry.name == application.name)
-                // {
-                //     entry.launch_count += 1;
-                //     self.db.save();
-                // }
+                self.state.application_list.save_db();
                 if keep_alive {
                     return;
                 }

@@ -18,8 +18,7 @@ pub struct Application {
     pub terminal: bool,
     pub comment: Option<String>,
     pub icon: Icon,
-    pub launch_count: usize,
-    pub blacklisted: bool,
+    pub db_entry: DbEntry,
 }
 
 impl Application {
@@ -75,24 +74,24 @@ impl Application {
                 .find(|entry| entry.name == name)
                 .cloned()
                 .unwrap_or(DbEntry::new(name));
-            let launch_count = db_entry.launch_count;
-            let blacklisted = db_entry.blacklisted;
+            let name = name.to_string();
+
             return Some(Self {
-                name: name.to_string(),
+                name,
                 filename,
                 args,
                 terminal,
                 comment,
                 icon,
-                launch_count,
-                blacklisted,
+                db_entry,
             });
         }
         None
     }
 
-    pub fn find_all(db: Db) -> Vec<Self> {
+    pub fn find_all() -> Vec<Self> {
         let mut applications = Vec::new();
+        let db = Db::load();
         let home = home_dir().unwrap();
         let dirs = vec![
             String::from("/usr/share/applications/"),
@@ -116,8 +115,9 @@ impl Application {
             }
         }
         applications.sort_by(|a, b| {
-            b.launch_count
-                .cmp(&a.launch_count)
+            b.db_entry
+                .launch_count
+                .cmp(&a.db_entry.launch_count)
                 .then(a.name.cmp(&b.name))
         });
         applications
