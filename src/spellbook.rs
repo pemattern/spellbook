@@ -140,15 +140,17 @@ impl Spellbook {
         let Some(application) = self.state.application_list.selected() else {
             return;
         };
+        self.state
+            .application_list
+            .increment_launch_count(&application);
+        self.state.application_list.save_db();
         if application.terminal {
             ratatui::restore();
             let _ = execvp(&application.filename, application.args.as_slice());
-            self.state.application_list.save_db();
             return;
         }
         match unsafe { fork() } {
             Ok(ForkResult::Parent { child }) => {
-                self.state.application_list.save_db();
                 if keep_alive {
                     return;
                 }
@@ -236,7 +238,10 @@ impl Widget for &mut Spellbook {
             .border_style(Style::new().fg(fg_color));
         Widget::render(info_block, info_area, buf);
         Widget::render(
-            Info::new(&self.config, self.state.application_list.selected()),
+            Info::new(
+                &self.config,
+                self.state.application_list.selected().as_ref(),
+            ),
             info_area.inner(Margin::new(1, 1)),
             buf,
         );

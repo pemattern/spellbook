@@ -112,9 +112,9 @@ impl ApplicationListState {
             .collect::<Vec<Application>>();
     }
 
-    pub fn selected(&self) -> Option<&Application> {
+    pub fn selected(&self) -> Option<Application> {
         let i = self.list.selected()?;
-        Some(&self.filtered_applications[i])
+        Some(self.filtered_applications[i].clone())
     }
 
     pub fn select_previous(&mut self) {
@@ -123,6 +123,13 @@ impl ApplicationListState {
 
     pub fn select_next(&mut self) {
         self.list.select_next();
+    }
+
+    pub fn increment_launch_count(&mut self, filtered_application: &Application) {
+        self.applications
+            .iter_mut()
+            .filter(|application| application.name == filtered_application.name)
+            .for_each(|application| application.db_entry.launch_count += 1)
     }
 
     pub fn save_db(&self) {
