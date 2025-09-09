@@ -90,6 +90,8 @@ impl Spellbook {
 
     fn handle_input(&mut self, key_event: KeyEvent) -> io::Result<()> {
         match (key_event.modifiers, key_event.code) {
+            (KeyModifiers::ALT, KeyCode::Enter) => self.select_application(true),
+            (KeyModifiers::ALT, KeyCode::Delete) => self.blacklist_application(),
             (_, KeyCode::Char(to_insert)) => {
                 self.state.input.enter_char(to_insert);
                 self.state.application_list.update(&self.state.input.filter);
@@ -104,7 +106,6 @@ impl Spellbook {
             }
             (_, KeyCode::Left) => self.state.input.move_cursor_left(),
             (_, KeyCode::Right) => self.state.input.move_cursor_right(),
-            (KeyModifiers::ALT, KeyCode::Enter) => self.select_application(true),
             (_, KeyCode::Enter) => self.select_application(false),
             (_, KeyCode::Down | KeyCode::Tab) => self.state.application_list.select_next(),
             (_, KeyCode::Up | KeyCode::BackTab) => self.state.application_list.select_previous(),
@@ -179,6 +180,16 @@ impl Spellbook {
             }
             Err(_) => todo!(),
         }
+    }
+
+    fn blacklist_application(&mut self) {
+        let application_list = &mut self.state.application_list;
+        let Some(application) = application_list.selected() else {
+            return;
+        };
+        application_list.blacklist(&application);
+        application_list.save_db();
+        application_list.update(&self.state.input.filter);
     }
 }
 

@@ -23,8 +23,8 @@ impl Db {
         db
     }
 
-    pub fn save_to_disk(&self) {
-        let Ok(toml) = toml::to_string_pretty(self) else {
+    pub fn save_to_disk(entries: Vec<DbEntry>) {
+        let Ok(toml) = toml::to_string_pretty(&Self { entries }) else {
             return;
         };
         std::fs::create_dir_all(Self::get_path()).unwrap();

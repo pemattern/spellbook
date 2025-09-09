@@ -108,8 +108,11 @@ impl ApplicationListState {
             .applications
             .clone()
             .into_iter()
-            .filter(|entry| entry.name.to_lowercase().contains(&filter.to_lowercase()))
-            .collect::<Vec<Application>>();
+            .filter(|entry| {
+                entry.name.to_lowercase().contains(&filter.to_lowercase())
+                    && !entry.db_entry.blacklisted
+            })
+            .collect();
     }
 
     pub fn selected(&self) -> Option<Application> {
@@ -126,28 +129,45 @@ impl ApplicationListState {
     }
 
     pub fn increment_launch_count(&mut self, filtered_application: &Application) {
-        self.applications
-            .iter_mut()
-            .filter(|application| application.name == filtered_application.name)
+        self.matched_applications_mut(filtered_application)
             .for_each(|application| application.db_entry.launch_count += 1)
     }
 
+    pub fn blacklist(&mut self, filtered_application: &Application) {
+        self.matched_applications_mut(filtered_application)
+            .for_each(|application| application.db_entry.blacklisted = true);
+    }
+
+    fn matched_applications_mut(
+        &mut self,
+        filtered_application: &Application,
+    ) -> impl Iterator<Item = &mut Application> {
+        self.applications
+            .iter_mut()
+            .filter(|application| application.name == filtered_application.name)
+    }
+
     pub fn save_db(&self) {
-        let entries = self
+        let mut entries = self
             .applications
             .iter()
             .map(|entry| entry.db_entry.clone())
             .collect::<Vec<DbEntry>>();
-        let db = Db { entries };
-        db.save_to_disk();
+        entries.sort_by(|a, b| a.name.as_str().cmp(b.name.as_str()));
+        Db::save_to_disk(entries);
     }
 }
 
 impl Default for ApplicationListState {
     fn default() -> Self {
         let applications = Application::find_all();
+        let filtered_applications = applications
+            .clone()
+            .into_iter()
+            .filter(|application| !application.db_entry.blacklisted)
+            .collect();
         Self {
-            filtered_applications: applications.clone(),
+            filtered_applications,
             applications,
             list: ListState::default(),
             scrollbar: ScrollbarState::default(),
