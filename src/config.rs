@@ -22,10 +22,10 @@ impl Config {
         let Ok(toml) = fs::read_to_string(&path) else {
             return Self::save_default_config();
         };
-        let Ok(config) = toml::from_str::<Self>(&toml) else {
-            return Self::save_default_config();
-        };
-        config
+        toml::from_str::<Self>(&toml).unwrap_or_else(|error| {
+            ratatui::restore();
+            panic!("{}", error);
+        })
     }
 
     fn save_default_config() -> Self {
