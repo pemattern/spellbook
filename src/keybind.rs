@@ -1,12 +1,14 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{Deserialize, Serialize};
 
+use crate::{action::Action, config::KeybindConfig};
+
 // TODO: implement custom serializer/deserializer
 // [keybind]
 // exit = "esc"
 // launch = "enter"
 // launch_keep_alive = "alt+enter"
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct Keybind {
     pub modifier: Option<KeybindModifier>,
@@ -26,6 +28,17 @@ impl Keybind {
             modifier: Some(r#mod),
             key: trigger,
         }
+    }
+
+    pub fn into_action(self, config: &KeybindConfig) -> Action {
+        if self == config.exit {
+            return Action::Exit;
+        } else if self == config.launch {
+            return Action::Launch;
+        } else if self == config.launch_keep_alive {
+            return Action::LaunchKeepAlive;
+        }
+        Action::None
     }
 }
 
@@ -49,7 +62,7 @@ impl TryFrom<KeyEvent> for Keybind {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum KeybindModifier {
     Shift,
@@ -58,7 +71,7 @@ pub enum KeybindModifier {
     Super,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum KeybindTrigger {
     Esc,

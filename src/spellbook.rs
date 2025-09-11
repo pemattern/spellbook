@@ -20,6 +20,7 @@ use std::{
 };
 
 use crate::{
+    action::Action,
     config::{ColorMode, Config},
     keybind::Keybind,
     message::Message,
@@ -93,9 +94,10 @@ impl Spellbook {
         let Ok(keybind) = Keybind::try_from(key_event) else {
             return Ok(());
         };
+        let action = keybind.into_action(&self.config.keybind);
 
-        match (key_event.modifiers, key_event.code) {
-            (KeyModifiers::ALT, KeyCode::Enter) => self.select_application(true),
+        match action {
+            Action::LaunchKeepAlive => self.select_application(true),
             (KeyModifiers::ALT, KeyCode::Delete) => self.blacklist_application(),
             (_, KeyCode::Char(to_insert)) => {
                 self.state.input.enter_char(to_insert);
