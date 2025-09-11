@@ -2,6 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::{config::KeybindConfig, keybind::Keybind};
 
+#[derive(Debug)]
 pub enum Action {
     None,
     Exit,
@@ -20,7 +21,8 @@ pub enum Action {
 impl Action {
     pub fn from_key_event(key_event: KeyEvent, config: &KeybindConfig) -> Self {
         match (key_event.modifiers, key_event.code) {
-            (_, KeyCode::Char(to_insert)) => Action::EnterChar(to_insert),
+            (KeyModifiers::NONE, KeyCode::Char(to_insert))
+            | (KeyModifiers::SHIFT, KeyCode::Char(to_insert)) => Action::EnterChar(to_insert),
             (KeyModifiers::NONE, KeyCode::Backspace) => Action::RemovePreviousChar,
             (KeyModifiers::NONE, KeyCode::Delete) => Action::RemoveNextChar,
             (KeyModifiers::NONE, KeyCode::Left) => Action::MoveCursorLeft,

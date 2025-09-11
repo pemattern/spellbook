@@ -90,7 +90,8 @@ impl Spellbook {
     }
 
     fn handle_input(&mut self, key_event: KeyEvent) -> io::Result<()> {
-        match Action::from_key_event(key_event, &self.config.keybind) {
+        let action = Action::from_key_event(key_event, &self.config.keybind);
+        match action {
             Action::LaunchKeepAlive => self.select_application(true),
             Action::Blacklist => self.blacklist_application(),
             Action::EnterChar(to_insert) => {
