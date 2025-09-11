@@ -1,8 +1,6 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{Deserialize, Serialize};
 
-use crate::{action::Action, config::KeybindConfig};
-
 // TODO: implement custom serializer/deserializer
 // [keybind]
 // exit = "esc"
@@ -29,21 +27,10 @@ impl Keybind {
             key: trigger,
         }
     }
-
-    pub fn into_action(self, config: &KeybindConfig) -> Action {
-        if self == config.exit {
-            return Action::Exit;
-        } else if self == config.launch {
-            return Action::Launch;
-        } else if self == config.launch_keep_alive {
-            return Action::LaunchKeepAlive;
-        }
-        Action::None
-    }
 }
 
 impl TryFrom<KeyEvent> for Keybind {
-    type Error = std::io::Error;
+    type Error = ();
     fn try_from(value: KeyEvent) -> Result<Self, Self::Error> {
         let modifier = match value.modifiers {
             KeyModifiers::SHIFT => Some(KeybindModifier::Shift),
@@ -56,7 +43,8 @@ impl TryFrom<KeyEvent> for Keybind {
             KeyCode::Esc => KeybindTrigger::Esc,
             KeyCode::Tab => KeybindTrigger::Tab,
             KeyCode::Enter => KeybindTrigger::Enter,
-            _ => todo!(),
+            KeyCode::Delete => KeybindTrigger::Delete,
+            _ => return Err(()),
         };
         Ok(Self { modifier, key })
     }
@@ -77,4 +65,5 @@ pub enum KeybindTrigger {
     Esc,
     Tab,
     Enter,
+    Delete,
 }

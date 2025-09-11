@@ -1,4 +1,4 @@
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::KeyEvent;
 use nix::{
     sys::wait::{WaitPidFlag, WaitStatus, waitpid},
     unistd::{ForkResult, execvp, fork, setsid},
@@ -22,7 +22,6 @@ use std::{
 use crate::{
     action::Action,
     config::{ColorMode, Config},
-    keybind::Keybind,
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -91,33 +90,28 @@ impl Spellbook {
     }
 
     fn handle_input(&mut self, key_event: KeyEvent) -> io::Result<()> {
-        let Ok(keybind) = Keybind::try_from(key_event) else {
-            return Ok(());
-        };
-        let action = keybind.into_action(&self.config.keybind);
-
-        match action {
+        match Action::from_key_event(key_event, &self.config.keybind) {
             Action::LaunchKeepAlive => self.select_application(true),
-            (KeyModifiers::ALT, KeyCode::Delete) => self.blacklist_application(),
-            (_, KeyCode::Char(to_insert)) => {
+            Action::Blacklist => self.blacklist_application(),
+            Action::EnterChar(to_insert) => {
                 self.state.input.enter_char(to_insert);
                 self.state.application_list.update(&self.state.input.filter);
             }
-            (_, KeyCode::Backspace) => {
+            Action::RemovePreviousChar => {
                 self.state.input.delete_char();
                 self.state.application_list.update(&self.state.input.filter);
             }
-            (_, KeyCode::Delete) => {
+            Action::RemoveNextChar => {
                 self.state.input.right_delete_char();
                 self.state.application_list.update(&self.state.input.filter);
             }
-            (_, KeyCode::Left) => self.state.input.move_cursor_left(),
-            (_, KeyCode::Right) => self.state.input.move_cursor_right(),
-            (_, KeyCode::Enter) => self.select_application(false),
-            (_, KeyCode::Down | KeyCode::Tab) => self.state.application_list.select_next(),
-            (_, KeyCode::Up | KeyCode::BackTab) => self.state.application_list.select_previous(),
-            (_, KeyCode::Esc) => self.mode = RunMode::Exit,
-            _ => {}
+            Action::MoveCursorLeft => self.state.input.move_cursor_left(),
+            Action::MoveCursorRight => self.state.input.move_cursor_right(),
+            Action::Launch => self.select_application(false),
+            Action::SelectNextApplication => self.state.application_list.select_next(),
+            Action::SelectPreviousApplication => self.state.application_list.select_previous(),
+            Action::Exit => self.mode = RunMode::Exit,
+            Action::None => {}
         }
         Ok(())
     }

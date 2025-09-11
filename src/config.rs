@@ -63,6 +63,7 @@ pub struct KeybindConfig {
     pub exit: Keybind,
     pub launch: Keybind,
     pub launch_keep_alive: Keybind,
+    pub blacklist: Keybind,
 }
 
 impl Default for KeybindConfig {
@@ -71,6 +72,7 @@ impl Default for KeybindConfig {
             exit: Keybind::new(KeybindTrigger::Esc),
             launch: Keybind::new(KeybindTrigger::Enter),
             launch_keep_alive: Keybind::new_with_mod(KeybindModifier::Alt, KeybindTrigger::Enter),
+            blacklist: Keybind::new_with_mod(KeybindModifier::Alt, KeybindTrigger::Delete),
         }
     }
 }
