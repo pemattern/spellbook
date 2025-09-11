@@ -21,6 +21,7 @@ use std::{
 
 use crate::{
     config::{ColorMode, Config},
+    keybind::Keybind,
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -89,6 +90,10 @@ impl Spellbook {
     }
 
     fn handle_input(&mut self, key_event: KeyEvent) -> io::Result<()> {
+        let Ok(keybind) = Keybind::try_from(key_event) else {
+            return Ok(());
+        };
+
         match (key_event.modifiers, key_event.code) {
             (KeyModifiers::ALT, KeyCode::Enter) => self.select_application(true),
             (KeyModifiers::ALT, KeyCode::Delete) => self.blacklist_application(),

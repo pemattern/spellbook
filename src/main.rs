@@ -2,6 +2,7 @@ mod application;
 mod config;
 mod db;
 mod icon;
+mod keybind;
 mod message;
 mod spellbook;
 mod widgets;
