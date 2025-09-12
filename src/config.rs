@@ -2,12 +2,9 @@ use std::{env, fs, io::Write};
 
 use serde::{Deserialize, Serialize};
 
-use crate::keybind::{Keybind, KeybindModifier, KeybindTrigger};
-
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Config {
-    pub keybind: KeybindConfig,
     pub input: InputConfig,
     pub counter: CounterConfig,
     pub border: BorderConfig,
@@ -54,26 +51,6 @@ impl Config {
 
     pub fn get_full_path() -> String {
         format!("{}{}", Self::get_path(), Self::FILENAME)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(default, deny_unknown_fields)]
-pub struct KeybindConfig {
-    pub exit: Keybind,
-    pub launch: Keybind,
-    pub launch_keep_alive: Keybind,
-    pub blacklist: Keybind,
-}
-
-impl Default for KeybindConfig {
-    fn default() -> Self {
-        Self {
-            exit: Keybind::new(KeybindTrigger::Esc),
-            launch: Keybind::new(KeybindTrigger::Enter),
-            launch_keep_alive: Keybind::new_with_mod(KeybindModifier::Alt, KeybindTrigger::Enter),
-            blacklist: Keybind::new_with_mod(KeybindModifier::Alt, KeybindTrigger::Delete),
-        }
     }
 }
 

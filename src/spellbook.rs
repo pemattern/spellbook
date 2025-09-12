@@ -1,4 +1,4 @@
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use nix::{
     sys::wait::{WaitPidFlag, WaitStatus, waitpid},
     unistd::{ForkResult, execvp, fork, setsid},
@@ -20,7 +20,6 @@ use std::{
 };
 
 use crate::{
-    action::Action,
     config::{ColorMode, Config},
     message::Message,
     widgets::{
@@ -67,7 +66,7 @@ impl Spellbook {
         let mut terminal = ratatui::init();
         while let RunMode::Running = &self.mode {
             terminal.draw(|frame| self.draw(frame))?;
-            self.handle_messages()?;
+            self.handle_messages();
         }
         ratatui::restore();
         Ok(())
@@ -79,42 +78,39 @@ impl Spellbook {
         frame.render_widget(self, frame.area());
     }
 
-    fn handle_messages(&mut self) -> io::Result<()> {
+    fn handle_messages(&mut self) {
         let message = self.receiver.recv().unwrap();
         match message {
-            Message::Input(key_event) => self.handle_input(key_event)?,
+            Message::Input(key_event) => self.handle_input(key_event),
             Message::Redraw => {}
             Message::ReloadConfig => self.reload_config(),
         }
-        Ok(())
     }
 
-    fn handle_input(&mut self, key_event: KeyEvent) -> io::Result<()> {
-        let action = Action::from_key_event(key_event, &self.config.keybind);
-        match action {
-            Action::LaunchKeepAlive => self.select_application(true),
-            Action::Blacklist => self.blacklist_application(),
-            Action::EnterChar(to_insert) => {
+    fn handle_input(&mut self, key_event: KeyEvent) {
+        match (key_event.modifiers, key_event.code) {
+            (KeyModifiers::ALT, KeyCode::Enter) => self.select_application(true),
+            (KeyModifiers::ALT, KeyCode::Delete) => self.blacklist_application(),
+            (_, KeyCode::Char(to_insert)) => {
                 self.state.input.enter_char(to_insert);
                 self.state.application_list.update(&self.state.input.filter);
             }
-            Action::RemovePreviousChar => {
+            (_, KeyCode::Backspace) => {
                 self.state.input.delete_char();
                 self.state.application_list.update(&self.state.input.filter);
             }
-            Action::RemoveNextChar => {
+            (_, KeyCode::Delete) => {
                 self.state.input.right_delete_char();
                 self.state.application_list.update(&self.state.input.filter);
             }
-            Action::MoveCursorLeft => self.state.input.move_cursor_left(),
-            Action::MoveCursorRight => self.state.input.move_cursor_right(),
-            Action::Launch => self.select_application(false),
-            Action::SelectNextApplication => self.state.application_list.select_next(),
-            Action::SelectPreviousApplication => self.state.application_list.select_previous(),
-            Action::Exit => self.mode = RunMode::Exit,
-            Action::None => {}
+            (_, KeyCode::Left) => self.state.input.move_cursor_left(),
+            (_, KeyCode::Right) => self.state.input.move_cursor_right(),
+            (_, KeyCode::Enter) => self.select_application(false),
+            (_, KeyCode::Down | KeyCode::Tab) => self.state.application_list.select_next(),
+            (_, KeyCode::Up | KeyCode::BackTab) => self.state.application_list.select_previous(),
+            (_, KeyCode::Esc) => self.mode = RunMode::Exit,
+            _ => {}
         }
-        Ok(())
     }
 
     fn cursor_position(&self, relative_cursor_position: Position) -> Position {
