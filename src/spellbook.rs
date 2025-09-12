@@ -25,7 +25,7 @@ use crate::{
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
         counter::Counter,
-        info::Info,
+        info::{Info, InfoState},
         input::{Input, InputState},
     },
 };
@@ -106,32 +106,25 @@ impl Spellbook {
             (_, KeyCode::Left) => self.state.input.move_cursor_left(),
             (_, KeyCode::Right) => self.state.input.move_cursor_right(),
             (_, KeyCode::Enter) => self.select_application(false),
-            (_, KeyCode::Down | KeyCode::Tab) => self.state.application_list.select_next(),
-            (_, KeyCode::Up | KeyCode::BackTab) => self.state.application_list.select_previous(),
+            (_, KeyCode::Down | KeyCode::Tab) => self.move_selection_down(),
+            (_, KeyCode::Up | KeyCode::BackTab) => self.move_selection_up(),
             (_, KeyCode::Esc) => self.mode = RunMode::Exit,
             _ => {}
         }
     }
 
     fn cursor_position(&self, relative_cursor_position: Position) -> Position {
-        let border = &self.config.border;
-
-        let margin_x = border.margin.x;
-        let border_x = if border.enable_border { 1u16 } else { 0u16 };
         let icon_x = 3u16;
         let default_padding_x = 1u16;
         let input_border_x = 1u16;
-        let x = margin_x
-            + border_x
+        let x = self.config.margin.x
             + icon_x
             + default_padding_x
             + input_border_x
             + relative_cursor_position.x;
 
-        let margin_y = border.margin.y;
-        let border_y = if border.enable_border { 1u16 } else { 0u16 };
         let input_border_y = 1u16;
-        let y = margin_y + border_y + input_border_y + relative_cursor_position.y;
+        let y = self.config.margin.y + input_border_y + relative_cursor_position.y;
         Position::new(x, y)
     }
 
@@ -180,6 +173,24 @@ impl Spellbook {
         }
     }
 
+    fn move_selection_down(&mut self) {
+        self.state.application_list.select_next();
+        self.set_info_to_current_application();
+    }
+
+    fn move_selection_up(&mut self) {
+        self.state.application_list.select_previous();
+        self.set_info_to_current_application();
+    }
+
+    fn set_info_to_current_application(&mut self) {
+        let Some(application) = self.state.application_list.selected() else {
+            return;
+        };
+        let message = application.comment;
+        self.state.info.update_message(message);
+    }
+
     fn blacklist_application(&mut self) {
         let application_list = &mut self.state.application_list;
         let Some(application) = application_list.selected() else {
@@ -188,6 +199,8 @@ impl Spellbook {
         application_list.blacklist(&application);
         application_list.save_db();
         application_list.update(&self.state.input.filter);
+        let message = format!("blacklisted application '{}'", application.name);
+        self.state.info.update_message(Some(message));
     }
 }
 
@@ -196,13 +209,9 @@ impl Widget for &mut Spellbook {
         if matches!(self.config.color_mode, ColorMode::Light) {
             buf.set_style(area, Style::new().bg(Color::Gray));
         }
-        let margin = Margin::new(self.config.border.margin.x, self.config.border.margin.y);
+        let margin = Margin::new(self.config.margin.x, self.config.margin.y);
         let padded_area = area.inner(margin);
-        let mut main_block = Block::new();
-        if self.config.border.enable_border {
-            main_block = main_block.borders(Borders::ALL);
-        }
-
+        let main_block = Block::new();
         let [input_and_counter_area, list_area, info_area] = Layout::vertical([
             Constraint::Length(3),
             Constraint::Min(1),
@@ -246,13 +255,11 @@ impl Widget for &mut Spellbook {
             .border_set(symbols::border::PROPORTIONAL_WIDE)
             .border_style(Style::new().fg(fg_color));
         Widget::render(info_block, info_area, buf);
-        Widget::render(
-            Info::new(
-                &self.config,
-                self.state.application_list.selected().as_ref(),
-            ),
+        StatefulWidget::render(
+            Info::new(&self.config),
             info_area.inner(Margin::new(1, 1)),
             buf,
+            &mut self.state.info,
         );
     }
 }
@@ -261,4 +268,5 @@ impl Widget for &mut Spellbook {
 pub struct SpellbookState {
     pub input: InputState,
     pub application_list: ApplicationListState,
+    pub info: InfoState,
 }

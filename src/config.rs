@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub input: InputConfig,
     pub counter: CounterConfig,
-    pub border: BorderConfig,
+    pub margin: MarginConfig,
     pub application_list: ApplicationListConfig,
     pub info: InfoConfig,
     pub color_mode: ColorMode,
@@ -80,24 +80,6 @@ impl Default for CounterConfig {
         Self {
             enable: true,
             bold: false,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(default, deny_unknown_fields)]
-pub struct BorderConfig {
-    pub margin: MarginConfig,
-    pub enable_border: bool,
-    pub divider_character: char,
-}
-
-impl Default for BorderConfig {
-    fn default() -> Self {
-        Self {
-            margin: MarginConfig::default(),
-            enable_border: false,
-            divider_character: '─',
         }
     }
 }
