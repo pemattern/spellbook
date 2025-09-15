@@ -16,7 +16,7 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use crate::{
@@ -36,6 +36,7 @@ pub struct Spellbook {
     receiver: mpsc::Receiver<Message>,
     config: Config,
     state: SpellbookState,
+    startup_instant: Instant,
 }
 
 #[derive(Debug, Default)]
@@ -46,7 +47,7 @@ enum RunMode {
 }
 
 impl Spellbook {
-    pub fn new(receiver: mpsc::Receiver<Message>) -> Self {
+    pub fn new(receiver: mpsc::Receiver<Message>, startup_instant: Instant) -> Self {
         let mode = RunMode::Running;
         let config = Config::load();
         let state = SpellbookState::default();
@@ -55,6 +56,7 @@ impl Spellbook {
             receiver,
             config,
             state,
+            startup_instant,
         }
     }
 
@@ -64,6 +66,10 @@ impl Spellbook {
 
     pub fn run(&mut self) -> io::Result<()> {
         let mut terminal = ratatui::init();
+        self.state.info.update_message(Some(format!(
+            "startup duration: {}ms",
+            self.startup_instant.elapsed().as_millis()
+        )));
         while let RunMode::Running = &self.mode {
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_messages();
