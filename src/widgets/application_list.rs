@@ -121,11 +121,15 @@ impl ApplicationListState {
     }
 
     pub fn select_previous(&mut self) {
-        self.list.select_previous();
+        self.list.scroll_up_by(1);
     }
 
     pub fn select_next(&mut self) {
-        self.list.select_next();
+        if let Some(i) = self.list.selected()
+            && i < self.filtered_applications.len() - 1
+        {
+            self.list.scroll_down_by(1);
+        }
     }
 
     pub fn increment_launch_count(&mut self, filtered_application: &Application) {
