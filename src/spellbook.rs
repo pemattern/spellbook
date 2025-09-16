@@ -246,12 +246,16 @@ impl Widget for &mut Spellbook {
             &mut self.state.input,
         );
         Widget::render(
-            Counter::new(&self.config, &self.state.application_list),
+            Counter::new(
+                &self.config,
+                self.state.application_list.filtered_applications.len(),
+                self.state.application_list.non_blacklisted_applications_len,
+            ),
             counter_area,
             buf,
         );
         StatefulWidget::render(
-            ApplicationList::new(&self.config, &self.state.input),
+            ApplicationList::new(&self.config, &self.state.input.filter),
             list_area,
             buf,
             &mut self.state.application_list,

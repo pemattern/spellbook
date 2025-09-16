@@ -118,7 +118,7 @@ impl Application {
             b.db_entry
                 .launch_count
                 .cmp(&a.db_entry.launch_count)
-                .then(a.name.cmp(&b.name))
+                .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
         });
         applications
     }

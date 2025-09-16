@@ -15,19 +15,14 @@ use crate::{
     db::{Db, DbEntry},
 };
 
-use super::input::InputState;
-
 pub struct ApplicationList<'a> {
     config: &'a Config,
     filter: &'a str,
 }
 
 impl<'a> ApplicationList<'a> {
-    pub fn new(config: &'a Config, input: &'a InputState) -> Self {
-        Self {
-            config,
-            filter: &input.filter,
-        }
+    pub fn new(config: &'a Config, filter: &'a str) -> Self {
+        Self { config, filter }
     }
 }
 
@@ -98,6 +93,7 @@ impl StatefulWidget for ApplicationList<'_> {
 pub struct ApplicationListState {
     pub filtered_applications: Vec<Application>,
     pub applications: Vec<Application>,
+    pub non_blacklisted_applications_len: usize,
     list: ListState,
     scrollbar: ScrollbarState,
 }
@@ -140,6 +136,7 @@ impl ApplicationListState {
     pub fn blacklist(&mut self, filtered_application: &Application) {
         self.matched_applications_mut(filtered_application)
             .for_each(|application| application.db_entry.blacklisted = true);
+        self.non_blacklisted_applications_len -= 1;
     }
 
     fn matched_applications_mut(
@@ -169,12 +166,14 @@ impl Default for ApplicationListState {
             .clone()
             .into_iter()
             .filter(|application| !application.db_entry.blacklisted)
-            .collect();
+            .collect::<Vec<Application>>();
+        let non_blacklisted_applications_len = filtered_applications.len();
         Self {
             filtered_applications,
             applications,
             list: ListState::default(),
             scrollbar: ScrollbarState::default(),
+            non_blacklisted_applications_len,
         }
     }
 }

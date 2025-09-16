@@ -7,8 +7,6 @@ use ratatui::{
 
 use crate::config::{ColorMode, Config};
 
-use super::application_list::ApplicationListState;
-
 pub struct Counter<'a> {
     config: &'a Config,
     current: usize,
@@ -16,11 +14,11 @@ pub struct Counter<'a> {
 }
 
 impl<'a> Counter<'a> {
-    pub fn new(config: &'a Config, application_list_state: &ApplicationListState) -> Self {
+    pub fn new(config: &'a Config, current: usize, max: usize) -> Self {
         Self {
             config,
-            current: application_list_state.filtered_applications.len(),
-            max: application_list_state.applications.len(),
+            current,
+            max,
         }
     }
 }
