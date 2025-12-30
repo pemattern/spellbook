@@ -34,25 +34,20 @@ impl StatefulWidget for ApplicationList<'_> {
 
         let mut highlighted_applications = Vec::new();
         for application in &state.filtered_applications {
-            let mut highlight_spans = vec![Span::from(" ")];
+            let mut highlight_spans = Vec::new();
             if self.config.application_list.display_icons {
                 highlight_spans.push(application.get_icon());
             }
-            highlight_spans.append(
-                &mut application.get_highlighted_name(self.filter, &self.config.color_mode),
-            );
+            highlight_spans.append(&mut application.get_highlighted_name(self.filter));
             highlighted_applications.push(Line::from(highlight_spans));
         }
 
-        let (fg_color, bg_color, highlight_color) = match self.config.color_mode {
-            crate::config::ColorMode::Light => (Color::Black, Color::Gray, Color::White),
-            crate::config::ColorMode::Dark => (Color::White, Color::Reset, Color::Black),
-        };
+        let (fg_color, bg_color, highlight_color) = (Color::White, Color::Reset, Color::Black);
         let list = List::new(highlighted_applications)
             .style(Style::new().fg(fg_color).bg(bg_color))
             .highlight_style(
                 Style::new()
-                    .fg(Color::Cyan)
+                    .fg(Color::Gray)
                     .bg(highlight_color)
                     .not_reversed(),
             )

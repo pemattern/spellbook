@@ -7,7 +7,6 @@ use ratatui::{
     Frame,
     buffer::Buffer,
     layout::{Constraint, Layout, Margin, Position, Rect},
-    style::{Color, Style},
     symbols,
     widgets::{Block, Borders, StatefulWidget, Widget},
 };
@@ -20,7 +19,7 @@ use std::{
 };
 
 use crate::{
-    config::{ColorMode, Config},
+    config::Config,
     message::Message,
     widgets::{
         application_list::{ApplicationList, ApplicationListState},
@@ -126,14 +125,14 @@ impl Spellbook {
             3 + self.config.input.icon.len() as u16
         };
         let default_padding_x = 0u16;
-        let input_border_x = 1u16;
+        let input_border_x = 0u16;
         let x = self.config.margin.x
             + icon_x
             + default_padding_x
             + input_border_x
             + relative_cursor_position.x;
 
-        let input_border_y = 1u16;
+        let input_border_y = 0u16;
         let y = self.config.margin.y + input_border_y + relative_cursor_position.y;
         Position::new(x, y)
     }
@@ -216,28 +215,20 @@ impl Spellbook {
 
 impl Widget for &mut Spellbook {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        if matches!(self.config.color_mode, ColorMode::Light) {
-            buf.set_style(area, Style::new().bg(Color::Gray));
-        }
         let margin = Margin::new(self.config.margin.x, self.config.margin.y);
         let padded_area = area.inner(margin);
         let main_block = Block::new();
         let [input_and_counter_area, list_area, info_area] = Layout::vertical([
-            Constraint::Length(3),
+            Constraint::Length(1),
             Constraint::Min(1),
             Constraint::Length(if self.config.info.enable { 3 } else { 0 }),
         ])
         .areas(main_block.inner(padded_area));
         Widget::render(main_block, padded_area, buf);
 
-        let fg_color = match self.config.color_mode {
-            ColorMode::Light => Color::White,
-            ColorMode::Dark => Color::Black,
-        };
         let input_block = Block::new()
-            .borders(Borders::all())
-            .border_set(symbols::border::PROPORTIONAL_WIDE)
-            .border_style(Style::new().fg(fg_color));
+            .borders(Borders::NONE)
+            .border_set(symbols::border::PROPORTIONAL_WIDE);
         let counter_area_constraint = if self.config.counter.enable {
             Constraint::Length(9)
         } else {
@@ -245,7 +236,7 @@ impl Widget for &mut Spellbook {
         };
         let [input_area, counter_area] =
             Layout::horizontal([Constraint::Min(1), counter_area_constraint])
-                .areas(input_block.inner(input_and_counter_area));
+                .areas(input_and_counter_area);
         Widget::render(input_block, input_and_counter_area, buf);
 
         StatefulWidget::render(
@@ -271,8 +262,7 @@ impl Widget for &mut Spellbook {
         );
         let info_block = Block::new()
             .borders(Borders::all())
-            .border_set(symbols::border::PROPORTIONAL_WIDE)
-            .border_style(Style::new().fg(fg_color));
+            .border_set(symbols::border::PROPORTIONAL_WIDE);
         Widget::render(info_block, info_area, buf);
         StatefulWidget::render(
             Info::new(&self.config),

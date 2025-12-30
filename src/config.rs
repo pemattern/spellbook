@@ -11,7 +11,6 @@ pub struct Config {
     pub application_list: ApplicationListConfig,
     pub scrollbar: ScrollbarConfig,
     pub info: InfoConfig,
-    pub color_mode: ColorMode,
 }
 
 impl Config {
@@ -85,12 +84,4 @@ pub struct ScrollbarConfig {
 #[serde(default, deny_unknown_fields)]
 pub struct InfoConfig {
     pub enable: bool,
-}
-
-#[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, rename_all = "snake_case")]
-pub enum ColorMode {
-    Light,
-    #[default]
-    Dark,
 }

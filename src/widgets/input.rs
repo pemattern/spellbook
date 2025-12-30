@@ -30,13 +30,7 @@ impl StatefulWidget for Input<'_> {
             Constraint::Min(1),
         ])
         .areas(area);
-        let (fg_color, bg_color) = match self.config.color_mode {
-            crate::config::ColorMode::Light => (Color::Black, Color::White),
-            crate::config::ColorMode::Dark => (Color::White, Color::Black),
-        };
-        let icon = Paragraph::new(self.config.input.icon.as_str())
-            .style(Style::new().fg(fg_color).bg(bg_color));
-        // TODO: Magic number
+        let icon = Paragraph::new(self.config.input.icon.as_str());
         state.width = (area.width - icon_area_constraint_length) as usize;
         let input_text = if state.filter.is_empty() {
             Paragraph::new(self.config.input.placeholder.as_str())
@@ -44,9 +38,8 @@ impl StatefulWidget for Input<'_> {
         } else {
             let len = state.filter.len().min(state.width + state.overflow);
             let filter_text_to_display = &state.filter[state.overflow..len];
-            Paragraph::new(filter_text_to_display).style(Style::new().fg(fg_color))
-        }
-        .bg(bg_color);
+            Paragraph::new(filter_text_to_display)
+        };
         Widget::render(icon, icon_area, buf);
         Widget::render(input_text, input_area, buf);
     }

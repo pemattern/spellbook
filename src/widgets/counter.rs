@@ -1,11 +1,11 @@
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Rect},
-    style::{Color, Style, Stylize},
+    style::{Style, Stylize},
     widgets::{Paragraph, Widget},
 };
 
-use crate::config::{ColorMode, Config};
+use crate::config::Config;
 
 pub struct Counter<'a> {
     config: &'a Config,
@@ -28,12 +28,8 @@ impl Widget for Counter<'_> {
         if !self.config.counter.enable {
             return;
         }
-        let (fg_color, bg_color) = match self.config.color_mode {
-            ColorMode::Light => (Color::Black, Color::White),
-            ColorMode::Dark => (Color::White, Color::Black),
-        };
         let text = format!("{} / {}", self.current, self.max);
-        let mut style = Style::new().fg(fg_color).bg(bg_color);
+        let mut style = Style::new();
         if self.config.counter.bold {
             style = style.bold();
         }

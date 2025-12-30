@@ -1,5 +1,4 @@
 use crate::{
-    config::ColorMode,
     db::{Db, DbEntry},
     icon::{APPLICATION_ICON_MAP, CATEGORY_ICON_MAP, Icon},
 };
@@ -130,7 +129,7 @@ impl Application {
         )
     }
 
-    pub fn get_highlighted_name(&self, filter: &str, color_mode: &ColorMode) -> Vec<Span<'_>> {
+    pub fn get_highlighted_name(&self, filter: &str) -> Vec<Span<'_>> {
         let mut spans = Vec::new();
         let name = &self.name;
         let indices = name
@@ -146,10 +145,7 @@ impl Application {
             spans.push(Span::raw(&name[..indices[0]]));
         }
         let mut iteration = 0;
-        let bg_color = match color_mode {
-            ColorMode::Light => Color::White,
-            ColorMode::Dark => Color::DarkGray,
-        };
+        let bg_color = Color::DarkGray;
         for index in indices.iter() {
             let start = *index;
             let end = start + filter.len();
