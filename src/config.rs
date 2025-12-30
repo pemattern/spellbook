@@ -1,4 +1,4 @@
-use std::{env, fs, io::Write};
+use std::{env, fs};
 
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +9,7 @@ pub struct Config {
     pub counter: CounterConfig,
     pub margin: MarginConfig,
     pub application_list: ApplicationListConfig,
+    pub scrollbar: ScrollbarConfig,
     pub info: InfoConfig,
     pub color_mode: ColorMode,
 }
@@ -20,28 +21,12 @@ impl Config {
     pub fn load() -> Self {
         let path = Self::get_full_path();
         let Ok(toml) = fs::read_to_string(&path) else {
-            return Self::save_default_config();
+            return Self::default();
         };
         toml::from_str::<Self>(&toml).unwrap_or_else(|error| {
             ratatui::restore();
             panic!("{}", error);
         })
-    }
-
-    fn save_default_config() -> Self {
-        let config = Config::default();
-        let path = Self::get_full_path();
-        let toml = toml::to_string_pretty(&config).unwrap();
-        std::fs::create_dir_all(Self::get_path()).unwrap();
-        let mut file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(path)
-            .unwrap();
-        file.write_all(toml.as_bytes()).unwrap();
-        file.flush().unwrap();
-        config
     }
 
     fn get_path() -> String {
@@ -54,50 +39,28 @@ impl Config {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct InputConfig {
+    pub icon: String,
     pub placeholder: String,
 }
 
-impl Default for InputConfig {
-    fn default() -> Self {
-        Self {
-            placeholder: String::from("Search Applications"),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct CounterConfig {
     pub enable: bool,
     pub bold: bool,
 }
 
-impl Default for CounterConfig {
-    fn default() -> Self {
-        Self {
-            enable: true,
-            bold: false,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct MarginConfig {
     pub x: u16,
     pub y: u16,
 }
 
-impl Default for MarginConfig {
-    fn default() -> Self {
-        Self { x: 1, y: 0 }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct ApplicationListConfig {
     pub display_icons: bool,
@@ -112,25 +75,16 @@ pub enum ApplicationListOrder {
     MostUsed,
 }
 
-impl Default for ApplicationListConfig {
-    fn default() -> Self {
-        Self {
-            display_icons: true,
-            order: ApplicationListOrder::default(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
-pub struct InfoConfig {
+pub struct ScrollbarConfig {
     pub enable: bool,
 }
 
-impl Default for InfoConfig {
-    fn default() -> Self {
-        Self { enable: true }
-    }
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct InfoConfig {
+    pub enable: bool,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]

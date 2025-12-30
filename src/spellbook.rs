@@ -120,8 +120,12 @@ impl Spellbook {
     }
 
     fn cursor_position(&self, relative_cursor_position: Position) -> Position {
-        let icon_x = 3u16;
-        let default_padding_x = 1u16;
+        let icon_x = if self.config.input.icon.is_empty() {
+            0
+        } else {
+            3 + self.config.input.icon.len() as u16
+        };
+        let default_padding_x = 0u16;
         let input_border_x = 1u16;
         let x = self.config.margin.x
             + icon_x
@@ -234,8 +238,13 @@ impl Widget for &mut Spellbook {
             .borders(Borders::all())
             .border_set(symbols::border::PROPORTIONAL_WIDE)
             .border_style(Style::new().fg(fg_color));
+        let counter_area_constraint = if self.config.counter.enable {
+            Constraint::Length(9)
+        } else {
+            Constraint::Length(0)
+        };
         let [input_area, counter_area] =
-            Layout::horizontal([Constraint::Min(1), Constraint::Length(9)])
+            Layout::horizontal([Constraint::Min(1), counter_area_constraint])
                 .areas(input_block.inner(input_and_counter_area));
         Widget::render(input_block, input_and_counter_area, buf);
 

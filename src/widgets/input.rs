@@ -20,15 +20,24 @@ impl<'a> Input<'a> {
 impl StatefulWidget for Input<'_> {
     type State = InputState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let [icon_area, input_area] =
-            Layout::horizontal([Constraint::Length(4), Constraint::Min(1)]).areas(area);
+        let icon_area_constraint_length = if self.config.input.icon.is_empty() {
+            0
+        } else {
+            self.config.input.icon.len() as u16 + 3
+        };
+        let [icon_area, input_area] = Layout::horizontal([
+            Constraint::Length(icon_area_constraint_length),
+            Constraint::Min(1),
+        ])
+        .areas(area);
         let (fg_color, bg_color) = match self.config.color_mode {
             crate::config::ColorMode::Light => (Color::Black, Color::White),
             crate::config::ColorMode::Dark => (Color::White, Color::Black),
         };
-        let icon = Paragraph::new(" ").style(Style::new().fg(fg_color).bg(bg_color));
+        let icon = Paragraph::new(self.config.input.icon.as_str())
+            .style(Style::new().fg(fg_color).bg(bg_color));
         // TODO: Magic number
-        state.width = (area.width - 4) as usize;
+        state.width = (area.width - icon_area_constraint_length) as usize;
         let input_text = if state.filter.is_empty() {
             Paragraph::new(self.config.input.placeholder.as_str())
                 .style(Style::new().fg(Color::DarkGray).italic())

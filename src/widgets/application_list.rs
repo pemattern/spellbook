@@ -71,21 +71,23 @@ impl StatefulWidget for ApplicationList<'_> {
         {
             *state.list.offset_mut() -= 1;
         }
-        let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
-            .begin_symbol(None)
-            .end_symbol(None)
-            .track_symbol(None)
-            .thumb_symbol("┃")
-            .style(Style::new().fg(fg_color));
-        let scrollable_range =
-            (state.filtered_applications.len() as i16 - area.height as i16).max(0);
-        let mut scrollbar_state = state
-            .scrollbar
-            .content_length(scrollable_range as usize)
-            .position(state.list.offset());
-
         StatefulWidget::render(list, area, buf, &mut state.list);
-        StatefulWidget::render(scrollbar, scrollbar_area, buf, &mut scrollbar_state);
+
+        if self.config.scrollbar.enable {
+            let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+                .begin_symbol(None)
+                .end_symbol(None)
+                .track_symbol(None)
+                .thumb_symbol("┃")
+                .style(Style::new().fg(fg_color));
+            let scrollable_range =
+                (state.filtered_applications.len() as i16 - area.height as i16).max(0);
+            let mut scrollbar_state = state
+                .scrollbar
+                .content_length(scrollable_range as usize)
+                .position(state.list.offset());
+            StatefulWidget::render(scrollbar, scrollbar_area, buf, &mut scrollbar_state);
+        }
     }
 }
 
