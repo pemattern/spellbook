@@ -1,8 +1,8 @@
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
-    style::{Color, Style, Stylize},
-    text::{Line, Span},
+    style::{Color, Style},
+    text::Line,
     widgets::{
         List, ListDirection, ListState, Scrollbar, ScrollbarOrientation, ScrollbarState,
         StatefulWidget,

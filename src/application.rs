@@ -4,7 +4,7 @@ use crate::{
 };
 use ini::Ini;
 use ratatui::{
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     text::Span,
 };
 use std::{env::home_dir, ffi::CString, fs, path::Path};

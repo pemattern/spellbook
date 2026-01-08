@@ -19,6 +19,9 @@ impl<'a> Info<'a> {
 impl<'a> StatefulWidget for Info<'a> {
     type State = InfoState;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        if !self.config.info.enable {
+            return;
+        }
         let message = state.message.clone().unwrap_or_default();
         let paragraph = Paragraph::new(message);
         Widget::render(paragraph, area, buf);
